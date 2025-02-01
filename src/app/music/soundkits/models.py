@@ -4,7 +4,7 @@ from sqlalchemy import Column, Table, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from src.app.auth.producers.models import producer_to_soundkits_association
-from src.infrastructure.postgres import Base, Sequence
+from src.infrastructure.postgres import Base, Sequence, IntegerArray
 
 tag_to_soundkits_association = Table(
     "tag_to_soundkits_association",
@@ -30,6 +30,9 @@ class Soundkit(Base):
     description: Mapped[str | None]
     picture_url: Mapped[str | None]
     file_url: Mapped[str]
+
+    viewers_ids: IntegerArray
+    likers_ids: IntegerArray
 
     created_at: Mapped[date]
     updated_at: Mapped[datetime]
