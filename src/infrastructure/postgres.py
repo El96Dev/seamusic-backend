@@ -28,7 +28,6 @@ class Sequence(Generic[Type], Mapped[Annotated[_Sequence[Type], mapped_column(AR
 
 StringArray = Mapped[Annotated[list[str], mapped_column(ARRAY(String))]]
 IntegerArray = Mapped[Annotated[list[int], mapped_column(ARRAY(Integer))]]
-UUIDArray = Mapped[Annotated[list[UUID], mapped_column(ARRAY(AlchemyUUID))]]
 
 
 @dataclass
