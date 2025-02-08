@@ -10,8 +10,6 @@ from src.infrastructure.config import settings
 
 from sqlalchemy import ARRAY, String, Integer
 from sqlalchemy.orm import Mapped, mapped_column
-from uuid import UUID
-from sqlalchemy import UUID as AlchemyUUID
 
 engine = create_async_engine(url=settings.db_url, echo=settings.echo)
 sessionmaker = async_sessionmaker(bind=engine, expire_on_commit=False)
