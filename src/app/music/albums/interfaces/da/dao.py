@@ -9,12 +9,14 @@ from src.app.music.albums.interfaces.da.models import Album
 from src.app.music.tracks.models import Track
 from src.app.social.tags.models import Tag
 from src.domain.music.albums.interfaces.da.dao import DAO
-from src.infrastructure.postgres import PostgresSessionMixin
+from src.infrastructure.postgres import PostgresSessionMixin, engine
 
 
 @dataclass
 class PostgresDAOImplementation(PostgresSessionMixin, DAO):
-    table: type[Album] = Album
+    def __init__(self) -> None:
+        super(PostgresDAOImplementation, self).__init__(bind=engine, table=Album)
+        self.table = Album
 
     async def get_album_by_id(self, album_id: int) -> Album | None:
         response: Album | None = await self.read(obj_id=album_id)
@@ -124,4 +126,4 @@ def get_postgres_dao_implementation() -> PostgresDAOImplementation:
     """
     :return: instance of PostgresDAOImplementation
     """
-    return PostgresDAOImplementation(table=Album)
+    return PostgresDAOImplementation()
