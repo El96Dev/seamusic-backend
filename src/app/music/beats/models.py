@@ -1,3 +1,5 @@
+from datetime import datetime, date
+
 from sqlalchemy import Table, Column, ForeignKey
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
@@ -29,6 +31,9 @@ class Beat(Base):
 
     viewers_ids: IntegerArray
     likers_ids: IntegerArray
+
+    created_at: Mapped[date]
+    updated_at: Mapped[datetime]
 
     producers: Mapped[list["ProducerProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         secondary=producer_to_beat_association,
