@@ -17,7 +17,7 @@ Base = declarative_base()
 
 @dataclass
 class PostgresSessionMixin(AsyncSession):
-    def __init__(self, table: type[Base], bind: AsyncEngine) -> None:
+    def __init__(self, table: type[Base], bind: AsyncEngine) -> None:  # type: ignore[valid-type]
         super(PostgresSessionMixin, self).__init__(bind=bind)
         self.table = table
 
@@ -27,7 +27,7 @@ class PostgresSessionMixin(AsyncSession):
     async def write(self, obj) -> None:  # type: ignore[no-untyped-def]
         self.add(obj)
 
-    async def update(self, obj: Base) -> None:
+    async def update(self, obj: Base) -> None:  # type: ignore[valid-type]
         await self.merge(obj)
 
     async def remove(self, obj_id: int) -> None:
