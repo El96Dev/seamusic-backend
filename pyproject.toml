@@ -62,6 +62,7 @@ exclude =[
     "*cache*",
     "__init__.py",
     "migrations/models.py",
+    "migrations/versions/",
 ]
 
 [tool.mypy]
