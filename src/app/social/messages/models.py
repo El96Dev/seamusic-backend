@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 
 from sqlalchemy import Column, Integer, Table, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -21,7 +21,7 @@ class Message(Base):
     text: Mapped[str]
     author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
 
-    created_at: Mapped[date]
+    created_at: Mapped[datetime]
     updated_at: Mapped[datetime]
 
     chat: Mapped["Chat"] = relationship("Chat", secondary=message_to_chat_association, back_populates="messages")  # type: ignore[name-defined]  # noqa: F821
