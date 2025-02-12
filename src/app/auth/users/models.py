@@ -4,27 +4,28 @@ from sqlalchemy import Table, ForeignKey, Integer, Column
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from src.app.music.squads.models import follower_to_squads_association
+from src.app.social.playlists.models import author_to_playlists_association
 from src.infrastructure.postgres import Base
 
 user_to_licenses_association = Table(
     "user_to_licenses_association",
     Base.metadata,
     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("license_id", Integer, ForeignKey("licenses.id"), primary_key=True)
+    Column("license_id", Integer, ForeignKey("licenses.id"), primary_key=True),
 )
 
 user_to_artist_association = Table(
     "user_to_artist_association",
     Base.metadata,
     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("artist_id", Integer, ForeignKey("artist_profiles.id"), primary_key=True)
+    Column("artist_id", Integer, ForeignKey("artist_profiles.id"), primary_key=True),
 )
 
 user_to_producer_association = Table(
     "user_to_producer_association",
     Base.metadata,
     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("producer_id", Integer, ForeignKey("producer_profiles.id"), primary_key=True)
+    Column("producer_id", Integer, ForeignKey("producer_profiles.id"), primary_key=True),
 )
 
 user_to_albums_association = Table(
@@ -45,14 +46,14 @@ user_to_playlists_association = Table(
     "user_to_playlists_association",
     Base.metadata,
     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
-    Column("playlist_id", Integer, ForeignKey("playlists.id"), primary_key=True)
+    Column("playlist_id", Integer, ForeignKey("playlists.id"), primary_key=True),
 )
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     username: Mapped[str]
     description: Mapped[str | None]
     email: Mapped[str]
@@ -69,10 +70,61 @@ class User(Base):
     is_adult: Mapped[bool]
     is_verified: Mapped[bool]
 
-    licenses: Mapped[list["License"]] = relationship(secondary=user_to_licenses_association)  # type: ignore[name-defined]  # noqa: F821
-    followed_squads: Mapped[list["Squad"]] = relationship(secondary=follower_to_squads_association, back_populates="followers")  # type: ignore[name-defined]  # noqa: F821
-    followed_artists: Mapped[list["ArtistProfile"]] = relationship(secondary=user_to_artist_association, back_populates="users")  # type: ignore[name-defined]  # noqa: F821
-    saved_playlists: Mapped[list["Playlist"]] = relationship(secondary=user_to_playlists_association)  # type: ignore[name-defined]  # noqa: F821
-    followed_producers: Mapped[list["ProducerProfile"]] = relationship(secondary=user_to_producer_association)  # type: ignore[name-defined]  # noqa: F821
-    followed_albums: Mapped[list["Album"]] = relationship(secondary=user_to_albums_association)  # type: ignore[name-defined]  # noqa: F821
-    followed_tags: Mapped[list["Tag"]] = relationship(secondary=user_to_tag_association)  # type: ignore[name-defined]  # noqa: F821
+    artist_id: Mapped[int] = mapped_column(ForeignKey("artist_profiles.id"))
+    producer_id: Mapped[int] = mapped_column(ForeignKey("producer_profiles.id"))
+
+    artist_profile: Mapped["ArtistProfile"] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="ArtistProfile",
+        secondary=user_to_artist_association,
+        cascade="all, delete-orphan",
+        lazy="joined",
+    )
+    producer_profile: Mapped["ProducerProfile"] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="ProducerProfile",
+        secondary=user_to_producer_association,
+        cascade="all, delete-orphan",
+        lazy="joined",
+    )
+    licenses: Mapped[list["License"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="License",
+        secondary=user_to_licenses_association,
+        lazy="selectin",
+    )
+    followed_squads: Mapped[list["Squad"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Squad",
+        secondary=follower_to_squads_association,
+        back_populates="followers",
+        lazy="selectin",
+    )
+    followed_artists: Mapped[list["ArtistProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="ArtistProfile",
+        secondary=user_to_artist_association,
+        back_populates="users",
+        lazy="selectin",
+    )
+    coauthored_playlists: Mapped[list["Playlist"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Playlist",
+        secondary=author_to_playlists_association,
+        back_populates="authors",
+        lazy="selectin",
+    )
+    saved_playlists: Mapped[list["Playlist"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Playlist",
+        secondary=user_to_playlists_association,
+        lazy="selectin",
+    )
+    followed_producers: Mapped[list["ProducerProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="ProducerProfile",
+        secondary=user_to_producer_association,
+        lazy="selectin",
+    )
+    followed_albums: Mapped[list["Album"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Album",
+        secondary=user_to_albums_association,
+        lazy="selectin",
+    )
+    followed_tags: Mapped[list["Tag"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Tag",
+        secondary=user_to_tag_association,
+        lazy="selectin",
+    )

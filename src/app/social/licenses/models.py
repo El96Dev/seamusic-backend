@@ -9,7 +9,7 @@ from src.infrastructure.postgres import Base
 class License(Base):
     __tablename__ = "licenses"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str]
     text: Mapped[str]
     description: Mapped[str]
@@ -20,5 +20,6 @@ class License(Base):
     author: Mapped["User"] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="User",
         secondary=user_to_licenses_association,
-        back_populates="licenses"
+        back_populates="licenses",
+        lazy="selectin",
     )

@@ -16,28 +16,49 @@ artist_to_track_association = Table(
 )
 
 artist_to_tags_association = Table(
-    'artist_to_tags_association',
+    "artist_to_tags_association",
     Base.metadata,
-    Column("artist_id", ForeignKey('artist_profiles.id'), primary_key=True),
-    Column("tag_id", ForeignKey('tags.id'), primary_key=True),
+    Column("artist_id", ForeignKey("artist_profiles.id"), primary_key=True),
+    Column("tag_id", ForeignKey("tags.id"), primary_key=True),
 )
 
 
 class ArtistProfile(Base):
     __tablename__ = "artist_profiles"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     username: Mapped[str]
-    description: Mapped[str]
-    picture_url: Mapped[str]
+    description: Mapped[str | None]
+    picture_url: Mapped[str | None]
 
     created_at: Mapped[date]
     updated_at: Mapped[datetime]
+    is_available: Mapped[bool]
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    users: Mapped[list["User"]] = relationship(secondary=user_to_artist_association, viewonly=True)  # type: ignore[name-defined]  # noqa: F821
-    followers: Mapped[list["User"]] = relationship(secondary=user_to_artist_association, back_populates="followed_artists")  # type: ignore[name-defined]  # noqa: F821
-    tracks: Mapped[list["Track"]] = relationship(secondary=artist_to_track_association)  # type: ignore[name-defined]  # noqa: F821
-    squads: Mapped[list["Squad"]] = relationship(secondary=artist_to_squad_association)  # type: ignore[name-defined]  # noqa: F821
-    albums: Mapped[list['Album']] = relationship(secondary=album_to_artist_association)  # type: ignore[name-defined]  # noqa: F821
-    tags: Mapped[list["Tag"]] = relationship(secondary=artist_to_tags_association)  # type: ignore[name-defined]  # noqa: F821
+    followers: Mapped[list["User"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="User",
+        secondary=user_to_artist_association,
+        back_populates="followed_artists",
+        lazy="selectin",
+    )
+    tracks: Mapped[list["Track"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Track",
+        secondary=artist_to_track_association,
+        back_populates="artists",
+        lazy="selectin",
+    )
+    squads: Mapped[list["Squad"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Squad",
+        secondary=artist_to_squad_association,
+        lazy="selectin",
+    )
+    albums: Mapped[list["Album"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Album",
+        secondary=album_to_artist_association,
+        lazy="selectin",
+    )
+    tags: Mapped[list["Tag"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Tag",
+        secondary=artist_to_tags_association,
+        lazy="selectin",
+    )
