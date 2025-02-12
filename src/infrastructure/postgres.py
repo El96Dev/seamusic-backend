@@ -1,17 +1,15 @@
 from dataclasses import dataclass
 from typing import Any, Literal, Annotated
 
-from sqlalchemy import ARRAY, String, Integer
-from sqlalchemy import Executable
+from sqlalchemy import ARRAY, String, Integer, Executable
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngine
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm import declarative_base
-
+from sqlalchemy.orm import mapped_column
 from src.infrastructure.config import settings
 
 engine = create_async_engine(url=settings.db_url, echo=settings.echo)
-StringArray = Mapped[Annotated[list[str], mapped_column(ARRAY(String))]]
-IntegerArray = Mapped[Annotated[list[int], mapped_column(ARRAY(Integer))]]
+StrArray = Annotated[list[str], mapped_column(ARRAY(String))]
+IntArray = Annotated[list[int], mapped_column(ARRAY(Integer))]
 Base = declarative_base()
 
 
