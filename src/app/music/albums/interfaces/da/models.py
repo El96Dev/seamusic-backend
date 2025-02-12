@@ -44,7 +44,7 @@ class Album(BaseAlbumModel, Base):
     likers_ids: Mapped[IntArray]  # type: ignore[assignment]
 
     artists: Mapped[list["ArtistProfile"]] = relationship(  # type: ignore[name-defined, assignment]  # noqa: F821
-        argument="Argument",
+        argument="ArtistProfile",
         secondary=album_to_artist_association,
         back_populates="album",
         lazy="selectin",
