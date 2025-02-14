@@ -1,6 +1,6 @@
 import pytest
 
-from src.app.music.albums.core.dtos import AlbumResponseDTO, ArtistAlbumsResponseDTO
+from src.app.music.albums.core.dtos import AlbumResponseDTO
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.core.exceptions import AlbumNotFoundError
 from src.domain.music.albums.core.service import BaseService
@@ -23,7 +23,6 @@ class TestAlbumService:
     """
     Fixtures
     """
-
     @pytest.fixture(scope='session')
     def album_service_factory(self) -> BaseService:
         return get_service()
@@ -89,8 +88,8 @@ class TestAlbumService:
             tags=fixture_album_tags,
             user_id=user_id
         )
-        assert isinstance(result_create_album.id, int) and result_create_album.id >= 1
         fixture_album_dict['album_id'] = result_create_album.id
+        assert isinstance(result_create_album.id, int) and result_create_album.id >= 1
 
     async def test_get_album_by_id(
             self,
@@ -98,8 +97,10 @@ class TestAlbumService:
             fixture_album_dict: AlbumTestModel,
             user_id: int
     ):
-        result_get_album = await album_service_factory.get_album(album_id=fixture_album_dict['album_id'],
-                                                                 user_id=user_id)
+        result_get_album = await album_service_factory.get_album(
+            album_id=fixture_album_dict['album_id'],
+            user_id=user_id
+        )
         assert isinstance(result_get_album, AlbumResponseDTO) and result_get_album.id == fixture_album_dict['album_id']
 
     async def test_exist_viewer_in_albums(
@@ -108,8 +109,10 @@ class TestAlbumService:
             fixture_album_dict: AlbumTestModel,
             user_id: int
     ):
-        result_get_album = await album_service_factory.get_album(album_id=fixture_album_dict['album_id'],
-                                                                 user_id=user_id)
+        result_get_album = await album_service_factory.get_album(
+            album_id=fixture_album_dict['album_id'],
+            user_id=user_id
+        )
         assert result_get_album.views == 1
 
     async def test_update_album(
@@ -174,6 +177,10 @@ class TestAlbumService:
             user_id=user_id, start=0, size=10
         )
         assert result_popular_albums.total >= 1
+
+    @pytest.mark.skip()
+    async def test_update_cover(self):
+        pass
 
     async def test_delete_album(
             self,
