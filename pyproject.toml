@@ -86,11 +86,3 @@ filterwarnings = [
     "error",
     "ignore::UserWarning",
 ]
-
-# pytest.ini
-[pytest]
-markers = [
-    "albume_service",
-    "albume_dao",
-    "all_albume"
-]

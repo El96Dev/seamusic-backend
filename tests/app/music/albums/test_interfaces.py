@@ -7,8 +7,6 @@ from src.app.music.albums.interfaces.da.dao import PostgresDAOImplementation, ge
 from src.app.music.albums.interfaces.da.models import Album
 
 
-@pytest.mark.all_albume
-@pytest.mark.albume_dao
 class TestPostgresDAOImplementation:
     @pytest.fixture(scope='session')
     def dao_impl_factory(self) -> Callable[[], PostgresDAOImplementation]:
