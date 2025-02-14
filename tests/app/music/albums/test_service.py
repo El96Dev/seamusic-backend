@@ -19,10 +19,13 @@ class AlbumTestModel(TypedDict):
     tracks_ids: list[int]
 
 
+@pytest.mark.all_albume
+@pytest.mark.albume_service
 class TestAlbumService:
     """
     Fixtures
     """
+
     @pytest.fixture(scope='session')
     def album_service_factory(self) -> BaseService:
         return get_service()
