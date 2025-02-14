@@ -28,6 +28,14 @@ class TestAlbumService:
         return get_service()
 
     @pytest.fixture(scope='session')
+    async def user_id(self) -> int:
+        return 1
+
+    @pytest.fixture(scope='session')
+    async def artists_id(self) -> int:
+        return 1
+
+    @pytest.fixture(scope='session')
     def fixture_album_title(self) -> str:
         return 'title'
 
@@ -50,6 +58,11 @@ class TestAlbumService:
     @pytest.fixture(scope='session')
     def fixture_artist_id(self) -> int:
         return 1
+
+    @pytest.fixture(scope='session')
+    def fixture_image_bytes(self) -> bytes:
+        f = open('album_photo.jpg', 'rb')
+        return f.read()
 
     @pytest.fixture(scope='session')
     def fixture_album_dict(
@@ -178,9 +191,19 @@ class TestAlbumService:
         )
         assert result_popular_albums.total >= 1
 
-    @pytest.mark.skip()
-    async def test_update_cover(self):
-        pass
+    async def test_update_cover(
+            self,
+            album_service_factory: BaseService,
+            fixture_image_bytes: bytes,
+            fixture_album_dict: AlbumTestModel,
+            user_id: int
+    ):
+        await album_service_factory.update_cover(
+            user_id=user_id,
+            album_id=fixture_album_dict['album_id'],
+            data=fixture_image_bytes
+        )
+        assert True
 
     async def test_delete_album(
             self,
