@@ -9,6 +9,7 @@ from src.app.music.albums.interfaces.da.models import Album
 from src.app.music.tracks.models import Track
 from src.app.social.tags.models import Tag
 from src.domain.music.albums.interfaces.da.dao import DAO
+from src.infrastructure.loggers import app as logger
 from src.infrastructure.postgres import PostgresSessionMixin, engine
 
 
@@ -19,31 +20,40 @@ class PostgresDAOImplementation(PostgresSessionMixin, DAO):
         self.table = Album
 
     async def get_album_by_id(self, album_id: int) -> Album | None:
+        logger.info("get_album_by_id DAO request")
         response: Album | None = await self.read(obj_id=album_id)
         return response
 
     async def get_album_existance_by_title(self, artist_id: int, title: str) -> bool:
+        logger.info("get_album_existance_by_title DAO request")
         return bool(await self.run(select(Album).filter(Album.title == title, Album.artists.any() == artist_id), 'scalar'))
 
     async def get_album_existance_by_id(self, album_id: int) -> bool:
+        logger.info("get_album_existance_by_id DAO request")
         return bool(await self.run(select(Album).filter(Album.id == album_id), 'scalar'))
 
     async def get_popular_albums(self, start: int, size: int) -> list[Album]:  # type: ignore[override]
+        logger.info("get_popular_albums DAO request")
         return await self.run(select(Album).order_by(func.count(Album.viewers_ids)).offset(start - 1).limit(size), 'scalars')
 
     async def count_artist_albums(self, artist_id: int) -> int:
+        logger.info("count_artist_albums DAO request")
         return await self.run(select(func.count(ArtistProfile.albums)).filter(ArtistProfile.id == artist_id), 'scalar')
 
     async def count_albums(self) -> int:
+        logger.info("count_albums DAO request")
         return await self.run(select(func.count(Album.id)), 'scalar')
 
     async def get_artist_id_by_user_id(self, user_id: int) -> int | None:
+        logger.info("get_artist_id_by_user_id DAO request")
         return await self.run(select(ArtistProfile.id).filter(ArtistProfile.user_id == user_id), 'scalar')
 
     async def get_artist_existance_by_id(self, artist_id: int) -> bool:
+        logger.info("get_artist_existance_by_id DAO request")
         return bool(await self.run(select(ArtistProfile.id).filter(ArtistProfile.id == artist_id), 'scalar'))
 
     async def get_artist_albums(self, artist_id: int) -> list[Album]:  # type: ignore[override]
+        logger.info("get_artist_albums DAO request")
         return list(await self.run(select(ArtistProfile.albums).filter(ArtistProfile.id == artist_id).order_by(Album.created_at.desc()), 'scalars'))
 
     async def create_album(
@@ -60,6 +70,7 @@ class PostgresDAOImplementation(PostgresSessionMixin, DAO):
         picture_url: str | None = None,
         description: str | None = None,
     ) -> int:
+        logger.info("create_album DAO request")
         album = Album(
             title=title,
             type=album_type,
@@ -91,6 +102,7 @@ class PostgresDAOImplementation(PostgresSessionMixin, DAO):
         tracks_ids: list[int] | None = None,
         tags: list[str] | None = None,
     ) -> int:
+        logger.info("update_album DAO request")
         album = Album(**dict(filter(
             lambda item: bool(item[1]),
             {
@@ -112,6 +124,7 @@ class PostgresDAOImplementation(PostgresSessionMixin, DAO):
         return album.id
 
     async def delete_album(self, album_id: int) -> None:
+        logger.info("delete_album DAO request")
         await self.remove(obj_id=album_id)
 
     async def __aenter__(self) -> Self:
