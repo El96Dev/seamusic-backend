@@ -6,6 +6,7 @@ from src.app.music.albums.api.utils import CurrentUser, get_current_user
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.api.routes import BaseRouter
 from src.domain.music.albums.core.service import BaseService
+from src.infrastructure.loggers import app as logger
 from src.presentation.music.albums.schemas import (
     SAlbumRequest,
     SAlbumResponse,
@@ -43,6 +44,7 @@ class Router(BaseRouter):
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SAlbumResponse:
+        logger.info("get_album API request")
         album = await service.get_album(album_id=request.album_id, user_id=current_user.id)
         return SAlbumResponse(
             id=album.id,
@@ -93,6 +95,7 @@ class Router(BaseRouter):
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SPopularAlbumsResponse:
+        logger.info("get_popular_albums API request")
         albums = await service.get_popular_albums(user_id=current_user.id, start=page.start, size=page.size)
         return SPopularAlbumsResponse(
             has_next=albums.has_next,
@@ -127,6 +130,7 @@ class Router(BaseRouter):
         request: SArtistAlbumsRequest = Depends(SArtistAlbumsRequest),
         service: BaseService = Depends(get_service),
     ) -> SArtistAlbumsResponse:
+        logger.info("get_artist_albums API request")
         response = await service.get_artists_albums(artist_id=request.artist_id)
         return SArtistAlbumsResponse(
             total=response.total,
@@ -157,6 +161,7 @@ class Router(BaseRouter):
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
+        logger.info("update_cover API request")
         await service.update_cover(
             album_id=request.album_id,
             user_id=current_user.id,
@@ -174,6 +179,7 @@ class Router(BaseRouter):
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
+        logger.info("like_album API request")
         await service.like_album(
             user_id=current_user.id,
             album_id=request.album_id,
@@ -190,6 +196,7 @@ class Router(BaseRouter):
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
+        logger.info("unlike_album API request")
         await service.unlike_album(
             user_id=current_user.id,
             album_id=request.album_id,
@@ -207,6 +214,7 @@ class Router(BaseRouter):
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SCreateAlbumResponse:
+        logger.info("create_album API request")
         response = await service.create_album(
             user_id=current_user.id,
             title=request.title,
@@ -227,6 +235,7 @@ class Router(BaseRouter):
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SUpdateAlbumResponse:
+        logger.info("update_album API request")
         response = await service.update_album(
             album_id=request.id,
             user_id=current_user.id,
@@ -249,7 +258,12 @@ class Router(BaseRouter):
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
+        logger.info("delete_album API request")
         await service.delete_album(
             album_id=request.album_id,
             user_id=current_user.id,
         )
+
+
+def get_router() -> Router:
+    return Router()
