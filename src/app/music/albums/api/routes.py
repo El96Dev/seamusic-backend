@@ -27,15 +27,15 @@ from src.presentation.music.albums.schemas import (
     SUnlikeAlbumRequest,
 )
 
-router_v1 = APIRouter(prefix='/albums')
+router_v1 = APIRouter(prefix="/albums")
 
 
 @dataclass
 class Router(BaseRouter):
     @staticmethod
     @router_v1.get(
-        path='/{album_id}',
-        summary='Get an album by it\'s id',
+        path="/{album_id}",
+        summary="Get an album by it\'s id",
         response_model=SAlbumResponse,
         status_code=status.HTTP_200_OK,
     )
@@ -85,8 +85,8 @@ class Router(BaseRouter):
 
     @staticmethod
     @router_v1.get(
-        path='/',
-        summary='Get popular albums',
+        path="/",
+        summary="Get popular albums",
         response_model=SPopularAlbumsResponse,
         status_code=status.HTTP_200_OK,
     )
@@ -121,8 +121,8 @@ class Router(BaseRouter):
 
     @staticmethod
     @router_v1.get(
-        path='/artist/{artist_id}',
-        summary='Get albums made by specified artist',
+        path="/artist/{artist_id}",
+        summary="Get albums made by specified artist",
         response_model=SArtistAlbumsResponse,
         status_code=status.HTTP_200_OK,
     )
@@ -152,8 +152,8 @@ class Router(BaseRouter):
 
     @staticmethod
     @router_v1.put(
-        path='/{album_id}/cover',
-        summary='Update an album cover',
+        path="/{album_id}/cover",
+        summary="Update an album cover",
         status_code=status.HTTP_202_ACCEPTED,
     )
     async def update_cover(  # type: ignore[override]
@@ -170,8 +170,8 @@ class Router(BaseRouter):
 
     @staticmethod
     @router_v1.patch(
-        path='/{album_id}/like',
-        summary='Like an album',
+        path="/{album_id}/like",
+        summary="Like an album",
         status_code=status.HTTP_202_ACCEPTED,
     )
     async def like_album(  # type: ignore[override]
@@ -187,8 +187,8 @@ class Router(BaseRouter):
 
     @staticmethod
     @router_v1.patch(
-        path='/{album_id}/unlike',
-        summary='Unlike an album',
+        path="/{album_id}/unlike",
+        summary="Unlike an album",
         status_code=status.HTTP_202_ACCEPTED,
     )
     async def unlike_album(  # type: ignore[override]
@@ -204,8 +204,8 @@ class Router(BaseRouter):
 
     @staticmethod
     @router_v1.post(
-        path='/new',
-        summary='Create a new album',
+        path="/new",
+        summary="Create a new album",
         response_model=SCreateAlbumResponse,
         status_code=status.HTTP_201_CREATED,
     )
@@ -225,8 +225,8 @@ class Router(BaseRouter):
 
     @staticmethod
     @router_v1.put(
-        path='/{album_id}',
-        summary='Update an album',
+        path="/{album_id}",
+        summary="Update an album",
         response_model=SUpdateAlbumResponse,
         status_code=status.HTTP_201_CREATED,
     )
@@ -249,8 +249,8 @@ class Router(BaseRouter):
 
     @staticmethod
     @router_v1.delete(
-        path='/{album_id}',
-        summary='Delete an album',
+        path="/{album_id}",
+        summary="Delete an album",
         status_code=status.HTTP_202_ACCEPTED,
     )
     async def delete_album(  # type: ignore[override]

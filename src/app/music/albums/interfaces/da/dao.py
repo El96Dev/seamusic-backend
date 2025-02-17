@@ -5,6 +5,7 @@ from typing import Self, Literal
 from sqlalchemy import select, func
 
 from src.app.auth.artists.models import ArtistProfile
+from src.app.auth.users.models import User
 from src.app.music.albums.interfaces.da.models import Album
 from src.app.music.tracks.models import Track
 from src.app.social.tags.models import Tag
@@ -26,35 +27,35 @@ class PostgresDAOImplementation(PostgresSessionMixin, DAO):
 
     async def get_album_existance_by_title(self, artist_id: int, title: str) -> bool:
         logger.info("get_album_existance_by_title DAO request")
-        return bool(await self.run(select(Album).filter(Album.title == title, Album.artists.any() == artist_id), 'scalar'))
+        return bool(await self.run(select(Album).filter(Album.title == title, Album.artists.any() == artist_id), "scalar"))
 
     async def get_album_existance_by_id(self, album_id: int) -> bool:
         logger.info("get_album_existance_by_id DAO request")
-        return bool(await self.run(select(Album).filter(Album.id == album_id), 'scalar'))
+        return bool(await self.run(select(Album).filter(Album.id == album_id), "scalar"))
 
     async def get_popular_albums(self, start: int, size: int) -> list[Album]:  # type: ignore[override]
         logger.info("get_popular_albums DAO request")
-        return await self.run(select(Album).order_by(func.count(Album.viewers_ids)).offset(start - 1).limit(size), 'scalars')
+        return await self.run(select(Album).order_by(func.count(Album.viewers_ids)).offset(start - 1).limit(size), "scalars")
 
     async def count_artist_albums(self, artist_id: int) -> int:
         logger.info("count_artist_albums DAO request")
-        return await self.run(select(func.count(ArtistProfile.albums)).filter(ArtistProfile.id == artist_id), 'scalar')
+        return await self.run(select(func.count(ArtistProfile.albums)).filter(ArtistProfile.id == artist_id), "scalar")
 
     async def count_albums(self) -> int:
         logger.info("count_albums DAO request")
-        return await self.run(select(func.count(Album.id)), 'scalar')
+        return await self.run(select(func.count(Album.id)), "scalar")
 
     async def get_artist_id_by_user_id(self, user_id: int) -> int | None:
         logger.info("get_artist_id_by_user_id DAO request")
-        return await self.run(select(ArtistProfile.id).filter(ArtistProfile.user_id == user_id), 'scalar')
+        return await self.run(select(User.artist_id).filter(User.id == user_id), "scalar")
 
     async def get_artist_existance_by_id(self, artist_id: int) -> bool:
         logger.info("get_artist_existance_by_id DAO request")
-        return bool(await self.run(select(ArtistProfile.id).filter(ArtistProfile.id == artist_id), 'scalar'))
+        return bool(await self.run(select(ArtistProfile.id).filter(ArtistProfile.id == artist_id), "scalar"))
 
     async def get_artist_albums(self, artist_id: int) -> list[Album]:  # type: ignore[override]
         logger.info("get_artist_albums DAO request")
-        return list(await self.run(select(ArtistProfile.albums).filter(ArtistProfile.id == artist_id).order_by(Album.created_at.desc()), 'scalars'))
+        return list(await self.run(select(ArtistProfile.albums).filter(ArtistProfile.id == artist_id).order_by(Album.created_at.desc()), "scalars"))
 
     async def create_album(
         self,
@@ -78,9 +79,9 @@ class PostgresDAOImplementation(PostgresSessionMixin, DAO):
             updated_at=updated_at,
             viewers_ids=viewers_ids,
             likers_ids=likers_ids,
-            artists=await self.run(select(ArtistProfile).filter(ArtistProfile.id.in_(artists_ids)), 'scalars'),
-            tracks=await self.run(select(Track).filter(Track.id.in_(tracks_ids)), 'scalars'),
-            tags=await self.run(select(Tag).filter(Tag.name.in_(tags)), 'scalars'),
+            artists=await self.run(select(ArtistProfile).filter(ArtistProfile.id.in_(artists_ids)), "scalars"),
+            tracks=await self.run(select(Track).filter(Track.id.in_(tracks_ids)), "scalars"),
+            tags=await self.run(select(Tag).filter(Tag.name.in_(tags)), "scalars"),
             picture_url=picture_url,
             description=description,
         )
@@ -106,18 +107,18 @@ class PostgresDAOImplementation(PostgresSessionMixin, DAO):
         album = Album(**dict(filter(
             lambda item: bool(item[1]),
             {
-                'id': album_id,
-                'title': title,
-                'type': album_type,
-                'created_at': created_at,
-                'updated_at': updated_at,
-                'viewers_ids': viewers_ids,
-                'likers_ids': likers_ids,
-                'artists': await self.run(select(ArtistProfile).filter(ArtistProfile.id.in_(artists_ids)), 'scalars') if artists_ids else None,
-                'tracks': await self.run(select(Track).filter(Track.id.in_(tracks_ids)), 'scalars') if tracks_ids else None,
-                'tags': await self.run(select(Tag).filter(Tag.name.in_(tags)), 'scalars') if tags else None,
-                'picture_url': picture_url,
-                'description': description,
+                "id": album_id,
+                "title": title,
+                "type": album_type,
+                "created_at": created_at,
+                "updated_at": updated_at,
+                "viewers_ids": viewers_ids,
+                "likers_ids": likers_ids,
+                "artists": await self.run(select(ArtistProfile).filter(ArtistProfile.id.in_(artists_ids)), "scalars") if artists_ids else None,
+                "tracks": await self.run(select(Track).filter(Track.id.in_(tracks_ids)), "scalars") if tracks_ids else None,
+                "tags": await self.run(select(Tag).filter(Tag.name.in_(tags)), "scalars") if tags else None,
+                "picture_url": picture_url,
+                "description": description,
             }.items(),
         )))
         await self.update(album)

@@ -10,7 +10,7 @@ class S3MAOImplementation(MAO, Session):
     async def update_cover(self, data: bytes, album_id: int) -> str:
         logger.info("update_cover MAO request")
         cover_url = await self.update(
-            path='/albums/',
+            path="/albums/",
             filename=unique_filename(str(album_id)),
             file_stream=get_file_stream(data=data),
         )

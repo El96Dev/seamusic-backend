@@ -30,7 +30,7 @@ producer_to_squad_association = Table(
 class Squad(Base):
     __tablename__ = "squads"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str]
     description: Mapped[str | None]
     picture_url: Mapped[str | None]
@@ -38,12 +38,20 @@ class Squad(Base):
     created_at: Mapped[date]
     updated_at: Mapped[datetime]
 
-    followers: Mapped[list["User"]] = relationship(secondary=follower_to_squads_association)  # type: ignore[name-defined]  # noqa: F821
+    followers: Mapped[list["User"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="User",
+        secondary=follower_to_squads_association,
+        lazy="selectin",
+    )
     artists: Mapped[list["ArtistProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="ArtistProfile",
         secondary=artist_to_squad_association,
         back_populates="squads",
+        lazy="selectin",
     )
     producers: Mapped[list["ProducerProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="ProducerProfile",
         secondary=producer_to_squad_association,
         back_populates="squads",
+        lazy="selectin",
     )

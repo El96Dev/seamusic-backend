@@ -26,10 +26,10 @@ from src.domain.music.albums.core.dtos import (
 )
 from src.infrastructure.pages import get_page, get_has_next, get_has_previous
 
-ItemType = TypeVar('ItemType')
-AlbumType = Literal['album', 'single']
-AccessLevel = Literal['user', 'admin', 'superuser']
-PremiumLevel = Literal['none', 'bot', 'full']
+ItemType = TypeVar("ItemType")
+AlbumType = Literal["album", "single"]
+AccessLevel = Literal["user", "admin", "superuser"]
+PremiumLevel = Literal["none", "bot", "full"]
 
 
 class UserDTO(BaseUserDTO, BaseModel):
@@ -39,9 +39,9 @@ class UserDTO(BaseUserDTO, BaseModel):
     email: EmailStr
     password: str
     picture_url: str | None = None
-    access_level: AccessLevel = 'user'
+    access_level: AccessLevel = "user"
     telegram_id: int | None = None
-    premium_level: PremiumLevel = 'none'
+    premium_level: PremiumLevel = "none"
 
     is_active: bool
     is_adult: bool

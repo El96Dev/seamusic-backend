@@ -41,4 +41,5 @@ lint:
 	uv run flake8
 	uv run mypy -p src --cache-dir=/dev/null --config-file=pyproject.toml
 	uv run mypy -p tests --cache-dir=/dev/null --config-file=pyproject.toml
-	uv run mypy -p migrations --cache-dir=/dev/null --config-file=pyproject.toml
+	uv run mypy -m migrations.env --cache-dir=/dev/null --config-file=pyproject.toml
+	uv run mypy -m migrations.models --cache-dir=/dev/null --config-file=pyproject.toml
