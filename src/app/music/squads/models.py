@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from sqlalchemy import Table, ForeignKey, Integer, Column
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-
+from src.app.auth.producers.models import producer_to_squad_association
 from src.infrastructure.postgres import Base
 
 follower_to_squads_association = Table(
@@ -17,13 +17,6 @@ artist_to_squad_association = Table(
     Base.metadata,
     Column("artist_id", Integer, ForeignKey("artist_profiles.id"), primary_key=True),
     Column("squad_id", Integer, ForeignKey("squads.id"), primary_key=True)
-)
-
-producer_to_squad_association = Table(
-    "producer_to_squad_association",
-    Base.metadata,
-    Column("producer_id", Integer, ForeignKey("producer_profiles.id"), primary_key=True),
-    Column("squad_id", Integer, ForeignKey("squads.id"), primary_key=True),
 )
 
 
