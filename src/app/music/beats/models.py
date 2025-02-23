@@ -5,6 +5,13 @@ from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from src.infrastructure.postgres import Base, IntArray
 
+beatpack_to_beats_association = Table(
+    "beatpack_to_beat_association",
+    Base.metadata,
+    Column("beat_id", ForeignKey("beats.id"), primary_key=True),
+    Column("beatpack_id", ForeignKey("beatpacks.id"), primary_key=True),
+)
+
 tag_to_beat_association = Table(
     "tag_to_beat_association",
     Base.metadata,
@@ -38,6 +45,12 @@ class Beat(Base):
     producers: Mapped[list["ProducerProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="ProducerProfile",
         secondary=producer_to_beat_association,
+        back_populates="beats",
+        lazy="selectin",
+    )
+    beatpacks: Mapped[list["Beatpack"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Beatpack",
+        secondary=beatpack_to_beats_association,
         back_populates="beats",
         lazy="selectin",
     )

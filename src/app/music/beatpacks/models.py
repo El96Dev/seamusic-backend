@@ -4,14 +4,8 @@ from sqlalchemy import Table, ForeignKey, Column
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from src.app.auth.producers.models import producers_to_beatpacks_association
+from src.app.music.beats.models import beatpack_to_beats_association
 from src.infrastructure.postgres import Base, IntArray
-
-beatpack_to_beats_association = Table(
-    "beatpack_to_beat_association",
-    Base.metadata,
-    Column("beat_id", ForeignKey("beats.id"), primary_key=True),
-    Column("beatpack_id", ForeignKey("beatpacks.id"), primary_key=True),
-)
 
 beatpacks_to_tags_association = Table(
     "beatpacks_to_tags_association",
