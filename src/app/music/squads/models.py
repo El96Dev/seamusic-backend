@@ -2,7 +2,7 @@ from datetime import date, datetime
 
 from sqlalchemy import Table, ForeignKey, Integer, Column
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from src.app.auth.producers.models import producer_to_squad_association
+from src.app.auth.producers.models import producers_to_squads_association
 from src.infrastructure.postgres import Base
 
 follower_to_squads_association = Table(
@@ -44,7 +44,7 @@ class Squad(Base):
     )
     producers: Mapped[list["ProducerProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="ProducerProfile",
-        secondary=producer_to_squad_association,
+        secondary=producers_to_squads_association,
         back_populates="squads",
         lazy="selectin",
     )

@@ -2,11 +2,12 @@ from datetime import datetime, date
 
 from sqlalchemy import ForeignKey, Column, Table, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src.app.music.beats.models import producer_to_beat_association
 from src.infrastructure.postgres import Base
 
-producer_to_beatpacks_association = Table(
-    "producer_to_beatpacks_association",
+producers_to_beatpacks_association = Table(
+    "producers_to_beatpacks_association",
     Base.metadata,
     Column("producer_profile_id", ForeignKey("producer_profiles.id"), primary_key=True),
     Column("beatpack_id", ForeignKey("beatpacks.id"), primary_key=True),
@@ -19,22 +20,29 @@ user_to_producer_association = Table(
     Column("producer_id", Integer, ForeignKey("producer_profiles.id"), primary_key=True),
 )
 
-producer_to_soundkits_association = Table(
-    "producer_to_soundkits_association",
+followers_to_producers_association = Table(
+    "followers_to_producers_association",
+    Base.metadata,
+    Column("follower_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("producer_id", Integer, ForeignKey("producer_profiles.id"), primary_key=True),
+)
+
+producers_to_soundkits_association = Table(
+    "producers_to_soundkits_association",
     Base.metadata,
     Column("soundkit_id", Integer, ForeignKey("soundkits.id"), primary_key=True),
     Column("producer_id", Integer, ForeignKey("producer_profiles.id"), primary_key=True),
 )
 
-producer_to_tags_association = Table(
-    "producer_to_tags_association",
+producers_to_tags_association = Table(
+    "producers_to_tags_association",
     Base.metadata,
     Column("producer_id", ForeignKey("producer_profiles.id"), primary_key=True),
     Column("tag_id", ForeignKey("tags.id"), primary_key=True),
 )
 
-producer_to_squad_association = Table(
-    "producer_to_squad_association",
+producers_to_squads_association = Table(
+    "producers_to_squads_association",
     Base.metadata,
     Column("producer_id", Integer, ForeignKey("producer_profiles.id"), primary_key=True),
     Column("squad_id", Integer, ForeignKey("squads.id"), primary_key=True),
@@ -55,7 +63,7 @@ class ProducerProfile(Base):
 
     followers: Mapped[list["User"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="User",
-        secondary=user_to_producer_association,
+        secondary=followers_to_producers_association,
         back_populates="followed_producers",
         lazy="selectin",
     )
@@ -67,24 +75,24 @@ class ProducerProfile(Base):
     )
     squads: Mapped[list["Squad"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="Squad",
-        secondary=producer_to_squad_association,
+        secondary=producers_to_squads_association,
         back_populates="producers",
         lazy="selectin",
     )
     tags: Mapped[list["Tag"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="Tag",
-        secondary=producer_to_tags_association,
+        secondary=producers_to_tags_association,
         lazy="selectin",
     )
     beatpacks: Mapped[list["Beatpack"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="Beatpack",
-        secondary=producer_to_beatpacks_association,
+        secondary=producers_to_beatpacks_association,
         back_populates="producers",
         lazy="selectin",
     )
     soundkits: Mapped[list["Soundkit"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="Soundkit",
-        secondary=producer_to_soundkits_association,
+        secondary=producers_to_soundkits_association,
         back_populates="producers",
         lazy="selectin",
     )

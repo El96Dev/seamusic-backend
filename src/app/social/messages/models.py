@@ -6,8 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.app.social.chats.models import message_to_chat_association
 from src.infrastructure.postgres import Base
 
-user_to_message_association = Table(
-    "user_to_message_association",
+author_to_messages_association = Table(
+    "author_to_messages_association",
     Base.metadata,
     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
     Column("message_id", Integer, ForeignKey("messages.id"), primary_key=True),
@@ -32,7 +32,7 @@ class Message(Base):
     )
     author: Mapped["User"] = relationship(   # type: ignore[name-defined]  # noqa: F821
         argument="User",
-        secondary=user_to_message_association,
+        secondary=author_to_messages_association,
         back_populates="messages",
         lazy="selectin",
     )

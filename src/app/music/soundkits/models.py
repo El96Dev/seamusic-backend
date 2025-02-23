@@ -3,7 +3,7 @@ from datetime import date, datetime
 from sqlalchemy import Column, Table, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
-from src.app.auth.producers.models import producer_to_soundkits_association
+from src.app.auth.producers.models import producers_to_soundkits_association
 from src.infrastructure.postgres import Base, IntArray
 
 tag_to_soundkits_association = Table(
@@ -38,7 +38,7 @@ class Soundkit(Base):
 
     producers: Mapped[list["ProducerProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="ProducerProfile",
-        secondary=producer_to_soundkits_association,
+        secondary=producers_to_soundkits_association,
         back_populates="soundkits",
         lazy="selectin",
     )

@@ -2,15 +2,16 @@ from datetime import date, datetime
 
 from sqlalchemy import Table, ForeignKey, Integer, Column
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from src.app.auth.producers.models import user_to_producer_association
+
+from src.app.auth.producers.models import user_to_producer_association, followers_to_producers_association
 from src.app.music.squads.models import follower_to_squads_association
 from src.app.social.playlists.models import author_to_playlists_association
 from src.infrastructure.postgres import Base
 
-user_to_licenses_association = Table(
-    "user_to_licenses_association",
+author_to_licenses_association = Table(
+    "author_to_licenses_association",
     Base.metadata,
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("author_id", Integer, ForeignKey("users.id"), primary_key=True),
     Column("license_id", Integer, ForeignKey("licenses.id"), primary_key=True),
 )
 
@@ -21,8 +22,15 @@ user_to_artist_association = Table(
     Column("artist_id", Integer, ForeignKey("artist_profiles.id"), primary_key=True),
 )
 
-user_to_albums_association = Table(
-    "user_to_albums_association",
+followers_to_artists_association = Table(
+    "followers_to_artists_association",
+    Base.metadata,
+    Column("follower_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("artist_id", Integer, ForeignKey("artist_profiles.id"), primary_key=True),
+)
+
+saver_to_albums_association = Table(
+    "saver_to_albums_association",
     Base.metadata,
     Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
     Column("album_id", Integer, ForeignKey("albums.id"), primary_key=True),
@@ -35,10 +43,10 @@ user_to_tag_association = Table(
     Column("tag_id", ForeignKey("tags.id"), primary_key=True),
 )
 
-user_to_playlists_association = Table(
-    "user_to_playlists_association",
+saver_to_playlists_association = Table(
+    "saver_to_playlists_association",
     Base.metadata,
-    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("saver_id", Integer, ForeignKey("users.id"), primary_key=True),
     Column("playlist_id", Integer, ForeignKey("playlists.id"), primary_key=True),
 )
 
@@ -80,7 +88,7 @@ class User(Base):
     )
     licenses: Mapped[list["License"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="License",
-        secondary=user_to_licenses_association,
+        secondary=author_to_licenses_association,
         lazy="selectin",
     )
     followed_squads: Mapped[list["Squad"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
@@ -91,7 +99,7 @@ class User(Base):
     )
     followed_artists: Mapped[list["ArtistProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="ArtistProfile",
-        secondary=user_to_artist_association,
+        secondary=followers_to_artists_association,
         back_populates="users",
         lazy="selectin",
     )
@@ -103,17 +111,17 @@ class User(Base):
     )
     saved_playlists: Mapped[list["Playlist"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="Playlist",
-        secondary=user_to_playlists_association,
+        secondary=saver_to_playlists_association,
         lazy="selectin",
     )
     followed_producers: Mapped[list["ProducerProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="ProducerProfile",
-        secondary=user_to_producer_association,
+        secondary=followers_to_producers_association,
         lazy="selectin",
     )
-    followed_albums: Mapped[list["Album"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+    saved_albums: Mapped[list["Album"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="Album",
-        secondary=user_to_albums_association,
+        secondary=saver_to_albums_association,
         lazy="selectin",
     )
     followed_tags: Mapped[list["Tag"]] = relationship(  # type: ignore[name-defined]  # noqa: F821

@@ -3,6 +3,7 @@ from typing import Literal
 
 from sqlalchemy import Column, Table, ForeignKey
 from sqlalchemy.orm import Mapped, relationship, mapped_column
+
 from src.domain.music.albums.interfaces.da.models import BaseAlbumModel
 from src.infrastructure.postgres import Base, IntArray
 

@@ -1,29 +1,33 @@
 from src.app.auth.artists.models import (  # noqa: F401
     ArtistProfile,
-    artist_to_tags_association,
-    user_to_artist_association,
-    artist_to_track_association,
+    artists_to_tags_association,
+    followers_to_artists_association,
+    artists_to_tracks_association,
     artist_to_squad_association,
     album_to_artist_association,
 )
 from src.app.auth.producers.models import (  # noqa: F401
     ProducerProfile,
-    producer_to_squad_association,
+    producers_to_squads_association,
     producer_to_beat_association,
     user_to_producer_association,
-    producer_to_tags_association,
-    producer_to_soundkits_association,
-    producer_to_beatpacks_association,
+    producers_to_tags_association,
+    producers_to_soundkits_association,
+    producers_to_beatpacks_association,
+    followers_to_producers_association,
 )
 from src.app.auth.users.models import (  # noqa: F401
     User,
     user_to_tag_association,
-    user_to_albums_association,
+    saver_to_albums_association,
     user_to_artist_association,
-    user_to_licenses_association,
-    user_to_playlists_association,
+    author_to_licenses_association,
+    saver_to_playlists_association,
     author_to_playlists_association,
     follower_to_squads_association,
+    followers_to_producers_association,
+    followers_to_artists_association,
+    user_to_producer_association,
 )
 from src.app.music.albums.interfaces.da.models import (  # noqa: F401
     Album,
@@ -33,9 +37,9 @@ from src.app.music.albums.interfaces.da.models import (  # noqa: F401
 )
 from src.app.music.beatpacks.models import (  # noqa: F401
     Beatpack,
-    beatpack_to_tag_association,
-    beatpack_to_beat_association_table,
-    producer_to_beatpacks_association,
+    beatpacks_to_tags_association,
+    beatpack_to_beats_association,
+    producers_to_beatpacks_association,
 )
 from src.app.music.beats.models import (  # noqa: F401
     Beat,
@@ -46,13 +50,13 @@ from src.app.music.soundkits.models import (  # noqa: F401
     Soundkit,
     tag_to_soundkits_association,
     beat_to_soundkits_association,
-    producer_to_soundkits_association,
+    producers_to_soundkits_association,
 )
 from src.app.music.squads.models import (  # noqa: F401
     Squad,
     artist_to_squad_association,
     follower_to_squads_association,
-    producer_to_squad_association,
+    producers_to_squads_association,
 )
 from src.app.music.tracks.models import (  # noqa: F401
     Track,
@@ -72,11 +76,11 @@ from src.app.social.comments.models import (  # noqa: F401
 )
 from src.app.social.licenses.models import (  # noqa: F401
     License,
-    user_to_licenses_association,
+    author_to_licenses_association,
 )
 from src.app.social.messages.models import (  # noqa: F401
     Message,
-    user_to_message_association,
+    author_to_messages_association,
     message_to_chat_association,
 )
 from src.app.social.notifications.models import (  # noqa: F401

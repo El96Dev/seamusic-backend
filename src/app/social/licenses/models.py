@@ -2,7 +2,7 @@ from datetime import datetime, date
 
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
-from src.app.auth.users.models import user_to_licenses_association
+from src.app.auth.users.models import author_to_licenses_association
 from src.infrastructure.postgres import Base
 
 
@@ -19,7 +19,7 @@ class License(Base):
 
     author: Mapped["User"] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="User",
-        secondary=user_to_licenses_association,
+        secondary=author_to_licenses_association,
         back_populates="licenses",
         lazy="selectin",
     )
