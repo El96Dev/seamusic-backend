@@ -1,5 +1,6 @@
 install:
 	uv venv --python 3.11.11
+	uv sync
 
 run-local:
 	uv run alembic upgrade head
@@ -31,7 +32,7 @@ downgrade:
 	uv run docker run app /bin/bash -c "uv run alembic downgrade $(revision)"
 
 test:
-	uv run docker-compose -f docker-compose.test.yml up --force-recreate --remove-orphans --abort-on-container-exit
+	uv run docker-compose -f docker-compose.test.yml up --build --force-recreate --remove-orphans --abort-on-container-exit
 
 test-local:
 	uv run alembic upgrade head
