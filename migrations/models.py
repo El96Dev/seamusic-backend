@@ -67,7 +67,7 @@ from src.app.music.tracks.models import (  # noqa: F401
 )
 from src.app.social.chats.models import (  # noqa: F401
     Chat,
-    message_to_chat_association,
+    messages_to_chat_association,
     user_to_chat_association,
 )
 from src.app.social.comments.models import (  # noqa: F401
@@ -81,7 +81,7 @@ from src.app.social.licenses.models import (  # noqa: F401
 from src.app.social.messages.models import (  # noqa: F401
     Message,
     author_to_messages_association,
-    message_to_chat_association,
+    messages_to_chat_association,
 )
 from src.app.social.notifications.models import (  # noqa: F401
     Notification,

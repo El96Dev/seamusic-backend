@@ -10,8 +10,8 @@ user_to_chat_association = Table(
     Column("chat_id", Integer, ForeignKey("chat.id"), primary_key=True),
 )
 
-message_to_chat_association = Table(
-    "message_to_chat_association",
+messages_to_chat_association = Table(
+    "messages_to_chat_association",
     Base.metadata,
     Column("message_id", Integer, ForeignKey("messages.id"), primary_key=True),
     Column("chat_id", Integer, ForeignKey("chat.id"), primary_key=True),
@@ -24,7 +24,7 @@ class Chat(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     messages: Mapped[list["Message"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="Message",
-        secondary=message_to_chat_association,
+        secondary=messages_to_chat_association,
         back_populates="chat",
         lazy="selectin",
     )

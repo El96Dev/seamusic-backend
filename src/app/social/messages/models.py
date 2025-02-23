@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import Column, Integer, Table, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.app.social.chats.models import message_to_chat_association
+from src.app.social.chats.models import messages_to_chat_association
 from src.infrastructure.postgres import Base
 
 author_to_messages_association = Table(
@@ -26,7 +26,7 @@ class Message(Base):
 
     chat: Mapped["Chat"] = relationship(  # type: ignore[name-defined]  # noqa: F821
         argument="Chat",
-        secondary=message_to_chat_association,
+        secondary=messages_to_chat_association,
         back_populates="messages",
         lazy="selectin",
     )
