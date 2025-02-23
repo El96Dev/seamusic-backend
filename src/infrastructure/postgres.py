@@ -5,6 +5,7 @@ from sqlalchemy import ARRAY, String, Integer, Executable
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import mapped_column
+
 from src.infrastructure.config import settings
 
 engine = create_async_engine(url=settings.db_url, echo=settings.echo)
