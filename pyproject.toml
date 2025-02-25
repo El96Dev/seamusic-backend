@@ -89,5 +89,5 @@ filterwarnings = [
 
 [pytest]
 markers = [
-    "all_albume", "albume_service", "albume_dao"
+    "album", "album_service", "album_dao"
 ]

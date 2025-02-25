@@ -19,8 +19,8 @@ class AlbumTestModel(TypedDict):
     tracks_ids: list[int]
 
 
-@pytest.mark.all_albume
-@pytest.mark.albume_service
+@pytest.mark.album
+@pytest.mark.album_service
 class TestAlbumService:
     """
     Fixtures
