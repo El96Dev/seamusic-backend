@@ -19,8 +19,8 @@ stop:
 	uv run docker-compose -f docker-compose.$(for).yml stop
 
 rm:
+	sudo rm -rf db .venv
 	uv run docker-compose -f docker-compose.$(for).yml rm
-	sudo rm -rf db
 
 revision:
 	uv run docker run app /bin/bash -c "uv run alembic revision --autogenerate"
