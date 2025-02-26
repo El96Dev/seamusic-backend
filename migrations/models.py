@@ -18,7 +18,7 @@ from src.app.auth.producers.models import (  # noqa: F401
 )
 from src.app.auth.users.models import (  # noqa: F401
     User,
-    user_to_tag_association,
+    follower_to_tag_association,
     saver_to_albums_association,
     user_to_artist_association,
     author_to_licenses_association,
@@ -63,7 +63,6 @@ from src.app.music.tracks.models import (  # noqa: F401
     track_to_tag_association,
     track_to_producer_association,
     user_to_tracks_likes,
-    track_to_artist_association,
 )
 from src.app.social.chats.models import (  # noqa: F401
     Chat,

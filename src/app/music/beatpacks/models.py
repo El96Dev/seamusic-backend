@@ -3,8 +3,9 @@ from datetime import datetime, date
 from sqlalchemy import Table, ForeignKey, Column
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
-from src.app.auth.producers.models import producers_to_beatpacks_association
-from src.app.music.beats.models import beatpack_to_beats_association
+from src.app.auth.producers.models import ProducerProfile, producers_to_beatpacks_association
+from src.app.music.beats.models import beatpack_to_beats_association, Beat
+from src.app.social.tags.models import Tag
 from src.infrastructure.postgres import Base, IntArray
 
 beatpacks_to_tags_association = Table(
@@ -28,18 +29,19 @@ class Beatpack(Base):
     created_at: Mapped[date]
     updated_at: Mapped[datetime]
 
-    producers: Mapped[list["ProducerProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+    producers: Mapped[list["ProducerProfile"]] = relationship(
         argument="ProducerProfile",
         secondary=producers_to_beatpacks_association,
         back_populates="beatpacks",
         lazy="selectin",
     )
-    beats: Mapped[list["Beat"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+    beats: Mapped[list["Beat"]] = relationship(
         argument="Beat",
         secondary=beatpack_to_beats_association,
+        back_populates='beatpacks',
         lazy="selectin",
     )
-    tags: Mapped[list["Tag"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+    tags: Mapped[list["Tag"]] = relationship(
         argument="Tag",
         secondary=beatpacks_to_tags_association,
         lazy="selectin",

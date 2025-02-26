@@ -3,7 +3,7 @@ from datetime import datetime, date
 from sqlalchemy import ForeignKey, Column, Table, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.app.music.beats.models import producer_to_beat_association
+from src.app.music.beats.models import Beat, producer_to_beat_association
 from src.infrastructure.postgres import Base
 
 producers_to_beatpacks_association = Table(
@@ -67,7 +67,7 @@ class ProducerProfile(Base):
         back_populates="followed_producers",
         lazy="selectin",
     )
-    beats: Mapped[list["Beat"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+    beats: Mapped[list["Beat"]] = relationship(
         argument="Beat",
         secondary=producer_to_beat_association,
         back_populates="producers",

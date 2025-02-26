@@ -3,6 +3,7 @@ from datetime import datetime, date
 from sqlalchemy import Column, ForeignKey, Table
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
+from src.app.auth.artists.models import ArtistProfile, artists_to_tracks_association
 from src.infrastructure.postgres import Base, IntArray
 
 track_to_tag_association = Table(
@@ -10,13 +11,6 @@ track_to_tag_association = Table(
     Base.metadata,
     Column("track_id", ForeignKey("tracks.id"), primary_key=True),
     Column("tag_id", ForeignKey("tags.id"), primary_key=True),
-)
-
-track_to_artist_association = Table(
-    "track_to_artist_association",
-    Base.metadata,
-    Column("artist_id", ForeignKey("artist_profiles.id"), primary_key=True),
-    Column("track_id", ForeignKey("tracks.id"), primary_key=True),
 )
 
 track_to_producer_association = Table(
@@ -49,9 +43,9 @@ class Track(Base):
     created_at: Mapped[date]
     updated_at: Mapped[datetime]
 
-    artists: Mapped[list["ArtistProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+    artists: Mapped[list["ArtistProfile"]] = relationship(
         argument="ArtistProfile",
-        secondary=track_to_artist_association,
+        secondary=artists_to_tracks_association,
         back_populates="tracks",
         lazy="selectin",
     )
