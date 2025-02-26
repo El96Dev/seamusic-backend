@@ -3,7 +3,7 @@ from datetime import date, datetime
 from sqlalchemy import Column, Table, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
-from src.app.auth.producers.models import producers_to_soundkits_association
+from src.app.social.tags.models import Tag
 from src.infrastructure.postgres import Base, IntArray
 
 tag_to_soundkits_association = Table(
@@ -11,6 +11,13 @@ tag_to_soundkits_association = Table(
     Base.metadata,
     Column("soundkit_id", Integer, ForeignKey("soundkits.id"), primary_key=True),
     Column("tag_id", ForeignKey("tags.id"), primary_key=True),
+)
+
+producers_to_soundkits_association = Table(
+    "producers_to_soundkits_association",
+    Base.metadata,
+    Column("soundkit_id", Integer, ForeignKey("soundkits.id"), primary_key=True),
+    Column("producer_id", Integer, ForeignKey("producer_profiles.id"), primary_key=True),
 )
 
 beat_to_soundkits_association = Table(
@@ -47,7 +54,7 @@ class Soundkit(Base):
         secondary=beat_to_soundkits_association,
         lazy="selectin",
     )
-    tags: Mapped[list["Tag"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+    tags: Mapped[list[Tag]] = relationship(
         argument="Tag",
         secondary=tag_to_soundkits_association,
         lazy="selectin",

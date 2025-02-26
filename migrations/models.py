@@ -3,6 +3,8 @@ from src.app.auth.artists.models import (  # noqa: F401
     artists_to_tags_association,
     followers_to_artists_association,
     artists_to_tracks_association,
+    user_to_artist_association,
+    followers_to_artists_association,
     artist_to_squad_association,
     album_to_artist_association,
 )
@@ -19,18 +21,16 @@ from src.app.auth.producers.models import (  # noqa: F401
 from src.app.auth.users.models import (  # noqa: F401
     User,
     follower_to_tag_association,
-    saver_to_albums_association,
-    user_to_artist_association,
     author_to_licenses_association,
     saver_to_playlists_association,
     author_to_playlists_association,
     follower_to_squads_association,
     followers_to_producers_association,
-    followers_to_artists_association,
     user_to_producer_association,
 )
 from src.app.music.albums.interfaces.da.models import (  # noqa: F401
     Album,
+    saver_to_albums_association,
     album_to_artist_association,
     album_to_tag_association,
     album_to_track_association,

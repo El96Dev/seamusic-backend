@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import Literal
 
-from sqlalchemy import Column, Table, ForeignKey
+from sqlalchemy import Column, Table, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
 from src.domain.music.albums.interfaces.da.models import BaseAlbumModel
@@ -12,6 +12,13 @@ album_to_track_association = Table(
     Base.metadata,
     Column("album_id", ForeignKey("albums.id"), primary_key=True),
     Column("track_id", ForeignKey("tracks.id"), primary_key=True),
+)
+
+saver_to_albums_association = Table(
+    "saver_to_albums_association",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("album_id", Integer, ForeignKey("albums.id"), primary_key=True),
 )
 
 album_to_artist_association = Table(
@@ -47,7 +54,7 @@ class Album(BaseAlbumModel, Base):
     artists: Mapped[list["ArtistProfile"]] = relationship(  # type: ignore[name-defined, assignment]  # noqa: F821
         argument="ArtistProfile",
         secondary=album_to_artist_association,
-        back_populates="album",
+        back_populates="albums",
         lazy="selectin",
     )
     tracks: Mapped[list["Track"]] = relationship(  # type: ignore[name-defined, assignment]  # noqa: F821

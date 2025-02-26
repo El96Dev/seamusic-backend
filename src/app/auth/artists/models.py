@@ -3,11 +3,24 @@ from datetime import date, datetime
 from sqlalchemy import Table, Integer, ForeignKey, Column
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.app.auth.users.models import followers_to_artists_association
 from src.app.music.albums.interfaces.da.models import album_to_artist_association
 from src.app.music.squads.models import artist_to_squad_association
 from src.app.social.tags.models import Tag
 from src.infrastructure.postgres import Base
+
+followers_to_artists_association = Table(
+    "followers_to_artists_association",
+    Base.metadata,
+    Column("follower_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("artist_id", Integer, ForeignKey("artist_profiles.id"), primary_key=True),
+)
+
+user_to_artist_association = Table(
+    "user_to_artist_association",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("artist_id", Integer, ForeignKey("artist_profiles.id"), primary_key=True),
+)
 
 artists_to_tracks_association = Table(
     "artists_to_track_association",
@@ -58,7 +71,7 @@ class ArtistProfile(Base):
         secondary=album_to_artist_association,
         lazy="selectin",
     )
-    tags: Mapped[list["Tag"]] = relationship(
+    tags: Mapped[list[Tag]] = relationship(
         argument="Tag",
         secondary=artists_to_tags_association,
         lazy="selectin",
