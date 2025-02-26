@@ -2,7 +2,6 @@ from datetime import datetime, date
 
 from sqlalchemy import Table, ForeignKey, Integer, Column
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-
 from src.infrastructure.postgres import Base
 
 author_to_licenses_association = Table(
@@ -11,6 +10,7 @@ author_to_licenses_association = Table(
     Column("author_id", Integer, ForeignKey("users.id"), primary_key=True),
     Column("license_id", Integer, ForeignKey("licenses.id"), primary_key=True),
 )
+
 
 class License(Base):
     __tablename__ = "licenses"

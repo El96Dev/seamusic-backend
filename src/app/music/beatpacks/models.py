@@ -2,7 +2,6 @@ from datetime import datetime, date
 
 from sqlalchemy import Table, ForeignKey, Column
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-
 from src.app.social.tags.models import Tag
 from src.infrastructure.postgres import Base, IntArray
 
@@ -26,6 +25,7 @@ beatpack_to_beats_association = Table(
     Column("beat_id", ForeignKey("beats.id"), primary_key=True),
     Column("beatpack_id", ForeignKey("beatpacks.id"), primary_key=True),
 )
+
 
 class Beatpack(Base):
     __tablename__ = "beatpacks"
