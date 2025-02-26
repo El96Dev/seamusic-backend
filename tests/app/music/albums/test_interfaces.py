@@ -223,17 +223,3 @@ class TestPostgresDAOImplementation:
         async with dao_impl_factory() as dao_impl:
             response = await dao_impl.delete_album(album_id=album['id'])  # type: ignore[func-returns-value]
         assert response is None
-
-
-@pytest.fixture(scope='module')
-def shared_data() -> dict:
-    return {}
-
-
-def test_one(shared_data: dict) -> None:
-    shared_data['key'] = 'value'
-    assert 'key' in shared_data
-
-
-def test_two(shared_data: dict) -> None:
-    assert shared_data['key'] == 'value'
