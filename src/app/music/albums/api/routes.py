@@ -1,11 +1,17 @@
 from dataclasses import dataclass
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from src.app.music.albums.api.utils import CurrentUser, get_current_user
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.api.routes import BaseRouter
+from src.domain.music.albums.core.exceptions import (
+    AlbumNotFoundError,
+    AlbumAlreasyExistsError,
+    NoArtistRightsError,
+)
 from src.domain.music.albums.core.service import BaseService
+from src.infrastructure.api import ExceptionHandler
 from src.infrastructure.loggers import app as logger
 from src.presentation.music.albums.schemas import (
     SAlbumRequest,
@@ -15,8 +21,6 @@ from src.presentation.music.albums.schemas import (
     SAlbumItemResponse,
     SPopularAlbumsResponse,
     SItemsRequest,
-    SArtistAlbumsRequest,
-    SArtistAlbumsResponse,
     SUpdateAlbumCoverRequest,
     SLikeAlbumRequest,
     SCreateAlbumRequest,
@@ -28,6 +32,14 @@ from src.presentation.music.albums.schemas import (
 )
 
 router_v1 = APIRouter(prefix="/albums")
+
+
+def get_exception_handler() -> ExceptionHandler:
+    return ExceptionHandler(exceptions={
+        AlbumNotFoundError: HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Album not found"),
+        AlbumAlreasyExistsError: HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Album alreasy exists"),
+        NoArtistRightsError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No artist's rights"),
+    })
 
 
 @dataclass
@@ -117,37 +129,6 @@ class Router(BaseRouter):
                 ),
                 albums.items,
             ))
-        )
-
-    @staticmethod
-    @router_v1.get(
-        path="/artist/{artist_id}",
-        summary="Get albums made by specified artist",
-        response_model=SArtistAlbumsResponse,
-        status_code=status.HTTP_200_OK,
-    )
-    async def get_artist_albums(  # type: ignore[override]
-        request: SArtistAlbumsRequest = Depends(SArtistAlbumsRequest),
-        service: BaseService = Depends(get_service),
-    ) -> SArtistAlbumsResponse:
-        logger.info("get_artist_albums API request")
-        response = await service.get_artists_albums(artist_id=request.artist_id)
-        return SArtistAlbumsResponse(
-            total=response.total,
-            items=list(map(
-                lambda item: SAlbumItemResponse(
-                    id=item.id,
-                    title=item.title,
-                    picture_url=item.picture_url,
-                    description=item.description,
-                    views=item.views,
-                    likes=item.likes,
-                    type=item.type,
-                    created_at=item.created_at,
-                    updated_at=item.updated_at,
-                ),
-                response.items,
-            )),
         )
 
     @staticmethod

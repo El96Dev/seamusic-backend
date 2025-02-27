@@ -72,29 +72,6 @@ class DAO(BaseInterface):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_artist_albums(self, artist_id: int) -> list[BaseAlbumModel]:
-        """
-        Gets a non-paginated list with specified artist's albums sorted by
-        their creation date
-
-        :param artist_id: artist's numeric identificator
-        :return: non-paginated list with albums
-        :raise NotImplementedError: when called directly by abstract class instance
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    async def count_artist_albums(self, artist_id: int) -> int:
-        """
-        Counts albums published by specified artist in storage
-
-        :param artist_id: artist's numeric identificator
-        :return: amount of albums
-        :raise NotImplementedError: when called directly by abstract class instance
-        """
-        raise NotImplementedError
-
-    @abstractmethod
     async def count_albums(self) -> int:
         """
         Counts albums in storage
@@ -111,17 +88,6 @@ class DAO(BaseInterface):
 
         :param user_id: user's numeric identificator
         :return: artist's numeric identificator
-        :raise NotImplementedError: when called directly by abstract class instance
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    async def get_artist_existance_by_id(self, artist_id: int) -> bool:
-        """
-        Checks if artist exists in storage by its identificator
-
-        :param artist_id: artist's numeric identificator
-        :return: artist's existance(boolean)
         :raise NotImplementedError: when called directly by abstract class instance
         """
         raise NotImplementedError
