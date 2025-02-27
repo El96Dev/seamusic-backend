@@ -13,13 +13,11 @@ from src.domain.music.albums.core.dtos import (
     BaseAlbumRequestDTO,
     BaseAlbumResponseDTO,
     BaseAlbumItemResponseDTO,
-    BaseArtistAlbumsRequestDTO,
     BaseCreateAlbumRequestDTO,
     BaseDeleteAlbumRequestDTO,
     BaseUpdateAlbumResponseDTO,
     BaseUpdateAlbumRequestDTO,
     BaseCreateAlbumResponseDTO,
-    BaseArtistAlbumsResponseDTO,
     BaseLikeAlbumRequestDTO,
     BaseUnlikeAlbumRequestDTO,
     BaseUpdateAlbumCoverRequestDTO,
@@ -131,18 +129,6 @@ class PopularAlbumsResponseDTO(  # type: ignore[misc]
     BaseModel,
 ):
     pass
-
-
-class ArtistAlbumsRequestDTO(BaseArtistAlbumsRequestDTO, BaseModel):
-    artist_id: int
-
-
-class ArtistAlbumsResponseDTO(
-    BaseArtistAlbumsResponseDTO,
-    BaseModel,
-):
-    total: int
-    items: list[AlbumItemResponseDTO]  # type: ignore[assignment]
 
 
 class LikeAlbumRequestDTO(BaseLikeAlbumRequestDTO, BaseModel):

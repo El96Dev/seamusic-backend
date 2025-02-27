@@ -1,11 +1,18 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
+from typing import AsyncGenerator
 
-from fastapi import APIRouter, Depends, status
-
+from fastapi import APIRouter, Depends, HTTPException, status
 from src.app.music.albums.api.utils import CurrentUser, get_current_user
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.api.routes import BaseRouter
+from src.domain.music.albums.core.exceptions import (
+    AlbumNotFoundError,
+    AlbumAlreasyExistsError,
+    NoArtistRightsError,
+)
 from src.domain.music.albums.core.service import BaseService
+from src.infrastructure.api import ExceptionHandler
 from src.infrastructure.loggers import app as logger
 from src.presentation.music.albums.schemas import (
     SAlbumRequest,
@@ -15,8 +22,6 @@ from src.presentation.music.albums.schemas import (
     SAlbumItemResponse,
     SPopularAlbumsResponse,
     SItemsRequest,
-    SArtistAlbumsRequest,
-    SArtistAlbumsResponse,
     SUpdateAlbumCoverRequest,
     SLikeAlbumRequest,
     SCreateAlbumRequest,
@@ -28,6 +33,16 @@ from src.presentation.music.albums.schemas import (
 )
 
 router_v1 = APIRouter(prefix="/albums")
+
+
+@asynccontextmanager
+async def exception_handler() -> AsyncGenerator[ExceptionHandler, None]:
+    async with ExceptionHandler(exceptions={
+        AlbumNotFoundError: HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Album not found"),
+        AlbumAlreasyExistsError: HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Album alreasy exists"),
+        NoArtistRightsError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No artist's rights"),
+    }) as handler:
+        yield handler
 
 
 @dataclass
@@ -45,7 +60,8 @@ class Router(BaseRouter):
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SAlbumResponse:
         logger.info("get_album API request")
-        album = await service.get_album(album_id=request.album_id, user_id=current_user.id)
+        async with exception_handler():
+            album = await service.get_album(album_id=request.album_id, user_id=current_user.id)
         return SAlbumResponse(
             id=album.id,
             title=album.title,
@@ -96,7 +112,8 @@ class Router(BaseRouter):
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SPopularAlbumsResponse:
         logger.info("get_popular_albums API request")
-        albums = await service.get_popular_albums(user_id=current_user.id, start=page.start, size=page.size)
+        async with exception_handler():
+            albums = await service.get_popular_albums(user_id=current_user.id, start=page.start, size=page.size)
         return SPopularAlbumsResponse(
             has_next=albums.has_next,
             has_previous=albums.has_previous,
@@ -120,37 +137,6 @@ class Router(BaseRouter):
         )
 
     @staticmethod
-    @router_v1.get(
-        path="/artist/{artist_id}",
-        summary="Get albums made by specified artist",
-        response_model=SArtistAlbumsResponse,
-        status_code=status.HTTP_200_OK,
-    )
-    async def get_artist_albums(  # type: ignore[override]
-        request: SArtistAlbumsRequest = Depends(SArtistAlbumsRequest),
-        service: BaseService = Depends(get_service),
-    ) -> SArtistAlbumsResponse:
-        logger.info("get_artist_albums API request")
-        response = await service.get_artists_albums(artist_id=request.artist_id)
-        return SArtistAlbumsResponse(
-            total=response.total,
-            items=list(map(
-                lambda item: SAlbumItemResponse(
-                    id=item.id,
-                    title=item.title,
-                    picture_url=item.picture_url,
-                    description=item.description,
-                    views=item.views,
-                    likes=item.likes,
-                    type=item.type,
-                    created_at=item.created_at,
-                    updated_at=item.updated_at,
-                ),
-                response.items,
-            )),
-        )
-
-    @staticmethod
     @router_v1.put(
         path="/{album_id}/cover",
         summary="Update an album cover",
@@ -162,11 +148,12 @@ class Router(BaseRouter):
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
         logger.info("update_cover API request")
-        await service.update_cover(
-            album_id=request.album_id,
-            user_id=current_user.id,
-            data=await request.file.read()
-        )
+        async with exception_handler():
+            await service.update_cover(
+                album_id=request.album_id,
+                user_id=current_user.id,
+                data=await request.file.read()
+            )
 
     @staticmethod
     @router_v1.patch(
@@ -180,10 +167,11 @@ class Router(BaseRouter):
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
         logger.info("like_album API request")
-        await service.like_album(
-            user_id=current_user.id,
-            album_id=request.album_id,
-        )
+        async with exception_handler():
+            await service.like_album(
+                user_id=current_user.id,
+                album_id=request.album_id,
+            )
 
     @staticmethod
     @router_v1.patch(
@@ -197,14 +185,15 @@ class Router(BaseRouter):
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
         logger.info("unlike_album API request")
-        await service.unlike_album(
-            user_id=current_user.id,
-            album_id=request.album_id,
-        )
+        async with exception_handler():
+            await service.unlike_album(
+                user_id=current_user.id,
+                album_id=request.album_id,
+            )
 
     @staticmethod
     @router_v1.post(
-        path="/new",
+        path="/",
         summary="Create a new album",
         response_model=SCreateAlbumResponse,
         status_code=status.HTTP_201_CREATED,
@@ -215,12 +204,13 @@ class Router(BaseRouter):
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SCreateAlbumResponse:
         logger.info("create_album API request")
-        response = await service.create_album(
-            user_id=current_user.id,
-            title=request.title,
-            description=request.description,
-            tags=request.tags,
-        )
+        async with exception_handler():
+            response = await service.create_album(
+                user_id=current_user.id,
+                title=request.title,
+                description=request.description,
+                tags=request.tags,
+            )
         return SCreateAlbumResponse(id=response.id)
 
     @staticmethod
@@ -236,15 +226,16 @@ class Router(BaseRouter):
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SUpdateAlbumResponse:
         logger.info("update_album API request")
-        response = await service.update_album(
-            album_id=request.id,
-            user_id=current_user.id,
-            title=request.title,
-            description=request.description,
-            artists_ids=request.artists_ids,
-            tracks_ids=request.tracks_ids,
-            tags=request.tags,
-        )
+        async with exception_handler():
+            response = await service.update_album(
+                album_id=request.id,
+                user_id=current_user.id,
+                title=request.title,
+                description=request.description,
+                artists_ids=request.artists_ids,
+                tracks_ids=request.tracks_ids,
+                tags=request.tags,
+            )
         return SUpdateAlbumResponse(id=response.id)
 
     @staticmethod
@@ -259,10 +250,11 @@ class Router(BaseRouter):
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
         logger.info("delete_album API request")
-        await service.delete_album(
-            album_id=request.album_id,
-            user_id=current_user.id,
-        )
+        async with exception_handler():
+            await service.delete_album(
+                album_id=request.album_id,
+                user_id=current_user.id,
+            )
 
 
 def get_router() -> Router:

@@ -4,7 +4,6 @@ from typing import Callable
 
 from src.domain.music.albums.core.dtos import (
     BaseAlbumResponseDTO,
-    BaseArtistAlbumsResponseDTO,
     BaseCreateAlbumResponseDTO,
     BasePopularAlbumsResponseDTO,
     BaseUpdateAlbumResponseDTO,
@@ -59,18 +58,6 @@ class BaseService(ABC):
         :param size: object's length
         :return: DTO with albums' sequence
         :raise NotImplementedError: when called directly by abstract class instance
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    async def get_artists_albums(self, artist_id: int) -> BaseArtistAlbumsResponseDTO:
-        """
-        Gets specified artist's albums
-
-        :param artist_id: artist's numeric identificator
-        :return: DTO with albums' sequence
-        :raise NotImplementedError: when called directly by abstract class instance
-        :raise ArtistNotFoundError: when specified artist doesn't exist in storage
         """
         raise NotImplementedError
 

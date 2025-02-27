@@ -15,8 +15,6 @@ from src.domain.music.albums.api.schemas import (
     BaseSAlbumItemResponse,
     BaseSPopularAlbumsResponse,
     BaseSCountAlbumsResponse,
-    BaseSArtistAlbumsRequest,
-    BaseSArtistAlbumsResponse,
     BaseSLikeAlbumRequest,
     BaseSUnlikeAlbumRequest,
     BaseSUpdateAlbumCoverRequest,
@@ -127,17 +125,6 @@ class SPopularAlbumsResponse(BaseSPopularAlbumsResponse):
 @dataclass
 class SCountAlbumsResponse(BaseSCountAlbumsResponse):
     amount: int
-
-
-@dataclass
-class SArtistAlbumsRequest(BaseSArtistAlbumsRequest):
-    artist_id: int
-
-
-@dataclass
-class SArtistAlbumsResponse(BaseSArtistAlbumsResponse):
-    total: int
-    items: list[SAlbumItemResponse]
 
 
 @dataclass

@@ -6,8 +6,6 @@ from src.domain.music.albums.api.schemas import (
     BaseSAlbumResponse,
     BaseSItemsRequest,
     BaseSPopularAlbumsResponse,
-    BaseSArtistAlbumsResponse,
-    BaseSArtistAlbumsRequest,
     BaseSUpdateAlbumCoverRequest,
     BaseSLikeAlbumRequest,
     BaseSCreateAlbumRequest,
@@ -39,15 +37,6 @@ class BaseRouter(ABC):
         service: BaseService,
         current_user: BaseCurrentUser,
     ) -> BaseSPopularAlbumsResponse:
-        raise NotImplementedError
-
-    @abstractmethod
-    async def get_artist_albums(
-        self,
-        request: BaseSArtistAlbumsRequest,
-        service: BaseService,
-        current_user: BaseCurrentUser,
-    ) -> BaseSArtistAlbumsResponse:
         raise NotImplementedError
 
     @abstractmethod

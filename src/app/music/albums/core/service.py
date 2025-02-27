@@ -16,8 +16,6 @@ from src.app.music.albums.core.dtos import (
     UpdateAlbumRequestDTO,
     UpdateAlbumResponseDTO,
     PopularAlbumsRequestDTO,
-    ArtistAlbumsRequestDTO,
-    ArtistAlbumsResponseDTO,
     LikeAlbumRequestDTO,
     UnlikeAlbumRequestDTO,
     UpdateAlbumCoverRequestDTO,
@@ -28,7 +26,6 @@ from src.domain.music.albums.core.exceptions import (
     AlbumNotFoundError,
     AlbumAlreasyExistsError,
     NoArtistRightsError,
-    ArtistNotFoundError,
 )
 from src.domain.music.albums.core.service import BaseService
 from src.domain.music.albums.interfaces.da.dao import DAO
@@ -117,36 +114,6 @@ class Service(BaseService):
                 created_at=album.created_at,
                 updated_at=album.updated_at,
             ), items)),
-        )
-
-    async def get_artists_albums(self, artist_id: int) -> ArtistAlbumsResponseDTO:
-        logger.info("get_artists_albums service request")
-        request = ArtistAlbumsRequestDTO(artist_id=artist_id)
-        async with self.dao_impl_factory() as session:
-            artists_exists = await session.get_artist_existance_by_id(artist_id=request.artist_id)
-            if artists_exists:
-                items = await session.get_artist_albums(artist_id=request.artist_id)
-                total = await session.count_artist_albums(artist_id=request.artist_id)
-
-        if not artists_exists:
-            raise ArtistNotFoundError()
-
-        return ArtistAlbumsResponseDTO(
-            total=total,
-            items=list(map(
-                lambda album: AlbumItemResponseDTO(
-                    id=album.id,
-                    title=album.title,
-                    picture_url=album.picture_url,
-                    description=album.description,
-                    views=len(album.viewers_ids),
-                    likes=len(album.likers_ids),
-                    type=album.type,
-                    created_at=album.created_at,
-                    updated_at=album.updated_at,
-                ),
-                items,
-            )),
         )
 
     async def like_album(self, album_id: int, user_id: int) -> None:
