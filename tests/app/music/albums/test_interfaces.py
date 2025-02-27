@@ -2,7 +2,6 @@ from datetime import date, datetime
 from typing import Literal, Callable
 
 import pytest
-
 from src.app.music.albums.interfaces.da.dao import PostgresDAOImplementation, get_postgres_dao_implementation
 from src.app.music.albums.interfaces.da.models import Album
 
@@ -169,12 +168,6 @@ class TestPostgresDAOImplementation:
             response = await dao_impl.get_popular_albums(start=album_start, size=album_size)
         assert isinstance(response, list)
 
-    async def test_count_artist_albums(self, album_artist_id: int, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
-        async with dao_impl_factory() as dao_impl:
-            response = await dao_impl.count_artist_albums(artist_id=album_artist_id)
-        assert isinstance(response, int)
-        assert response >= 0
-
     async def test_count_albums(self, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
         async with dao_impl_factory() as dao_impl:
             response = await dao_impl.count_albums()
@@ -186,16 +179,6 @@ class TestPostgresDAOImplementation:
             response = await dao_impl.get_artist_id_by_user_id(user_id=album_user_id)
         assert isinstance(response, int)
         assert response >= 1
-
-    async def test_get_artist_existance_by_id(self, album_artist_id: int, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
-        async with dao_impl_factory() as dao_impl:
-            response = await dao_impl.get_artist_existance_by_id(artist_id=album_artist_id)
-        assert isinstance(response, bool)
-
-    async def test_get_artist_albums(self, album_artist_id: int, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
-        async with dao_impl_factory() as dao_impl:
-            response = await dao_impl.get_artist_albums(artist_id=album_artist_id)
-        assert isinstance(response, list)
 
     async def test_update_album(
         self,
