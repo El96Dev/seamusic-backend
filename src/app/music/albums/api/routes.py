@@ -36,7 +36,7 @@ router_v1 = APIRouter(prefix="/albums")
 
 
 @asynccontextmanager
-async def exception_handler() -> AsyncGenerator[ExceptionHandler]:
+async def exception_handler() -> AsyncGenerator[ExceptionHandler, None]:
     async with ExceptionHandler(exceptions={
         AlbumNotFoundError: HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Album not found"),
         AlbumAlreasyExistsError: HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Album alreasy exists"),
