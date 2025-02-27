@@ -19,7 +19,7 @@ stop:
 	uv run docker-compose -f docker-compose.$(for).yml stop
 
 rm:
-	sudo rm -rf db .venv
+	sudo rm -rf db
 	uv run docker-compose -f docker-compose.$(for).yml rm
 
 revision:
