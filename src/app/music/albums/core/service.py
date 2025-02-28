@@ -102,7 +102,7 @@ class Service(BaseService):
             page=get_page(start=page.start, size=page.size),
             has_next=get_has_next(total=total, start=page.start, size=page.size),
             has_previous=get_has_previous(start=page.start, size=page.size),
-            size=page.size,
+            size=len(items),
             items=list(map(lambda album: AlbumItemResponseDTO(
                 id=album.id,
                 title=album.title,
