@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import AsyncGenerator
 
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from src.app.music.albums.api.utils import CurrentUser, get_current_user
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.api.routes import BaseRouter
@@ -34,7 +33,7 @@ from src.presentation.music.albums.schemas import (
     SUnlikeAlbumRequest,
 )
 
-router_v1 = APIRouter(prefix="/albums")
+router_v1 = APIRouter(prefix="/albums", tags=["tags"])
 
 
 def exceptions() -> dict[type[Exc], HTTPException]:
@@ -94,7 +93,7 @@ class Router(BaseRouter):
     @staticmethod
     @router_v1.get(
         path="/{album_id}",
-        summary="Get an album by it\'s id",
+        summary="Get an album by it's id",
         responses={
             status.HTTP_200_OK: {"model": SAlbumResponse},
             status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
