@@ -13,6 +13,7 @@ from src.domain.music.albums.core.exceptions import (
 )
 from src.domain.music.albums.core.service import BaseService
 from src.infrastructure.api import ExceptionHandler
+from src.infrastructure.exceptions import Exc
 from src.infrastructure.loggers import app as logger
 from src.presentation.music.albums.schemas import (
     SAlbumRequest,
@@ -35,13 +36,55 @@ from src.presentation.music.albums.schemas import (
 router_v1 = APIRouter(prefix="/albums")
 
 
+def exceptions() -> dict[type[Exc], HTTPException]:
+    return {
+        AlbumNotFoundError: HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=[{
+            "loc": ["string", 0],
+            "msg": "Album not found",
+            "type": "string",
+        }]),
+        AlbumAlreasyExistsError: HTTPException(status_code=status.HTTP_409_CONFLICT, detail=[{
+            "loc": ["string", 0],
+            "msg": "Album alreasy exists",
+            "type": "string",
+        }]),
+        NoArtistRightsError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=[{
+            "loc": ["string", 0],
+            "msg": "You don't have an artist profile",
+            "type": "string",
+        }]),
+    }
+
+
+def examples() -> dict:
+    return {
+        status.HTTP_404_NOT_FOUND: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Album not found",
+                "type": "string",
+            }]
+        }},
+        status.HTTP_409_CONFLICT:  {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Album alreasy exists",
+                "type": "string",
+            }]
+        }},
+        status.HTTP_403_FORBIDDEN: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "You don't have an artist profile",
+                "type": "string",
+            }]
+        }},
+    }
+
+
 @asynccontextmanager
 async def exception_handler() -> AsyncGenerator[ExceptionHandler, None]:
-    async with ExceptionHandler(exceptions={
-        AlbumNotFoundError: HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Album not found"),
-        AlbumAlreasyExistsError: HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Album alreasy exists"),
-        NoArtistRightsError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No artist's rights"),
-    }) as handler:
+    async with ExceptionHandler(exceptions=exceptions()) as handler:
         yield handler
 
 
@@ -51,8 +94,10 @@ class Router(BaseRouter):
     @router_v1.get(
         path="/{album_id}",
         summary="Get an album by it\'s id",
-        response_model=SAlbumResponse,
-        status_code=status.HTTP_200_OK,
+        responses={
+            status.HTTP_200_OK: {"model": SAlbumResponse},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+        },
     )
     async def get_album(  # type: ignore[override]
         request: SAlbumRequest = Depends(SAlbumRequest),
@@ -103,8 +148,9 @@ class Router(BaseRouter):
     @router_v1.get(
         path="/",
         summary="Get popular albums",
-        response_model=SPopularAlbumsResponse,
-        status_code=status.HTTP_200_OK,
+        responses={
+            status.HTTP_200_OK: {"model": SPopularAlbumsResponse},
+        },
     )
     async def get_popular_albums(  # type: ignore[override]
         page: SItemsRequest = Depends(SItemsRequest),
@@ -140,7 +186,10 @@ class Router(BaseRouter):
     @router_v1.put(
         path="/{album_id}/cover",
         summary="Update an album cover",
-        status_code=status.HTTP_202_ACCEPTED,
+        responses={
+            status.HTTP_204_NO_CONTENT: {"model": None},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+        },
     )
     async def update_cover(  # type: ignore[override]
         request: SUpdateAlbumCoverRequest = Depends(SUpdateAlbumCoverRequest),
@@ -159,7 +208,10 @@ class Router(BaseRouter):
     @router_v1.patch(
         path="/{album_id}/like",
         summary="Like an album",
-        status_code=status.HTTP_202_ACCEPTED,
+        responses={
+            status.HTTP_204_NO_CONTENT: {"model": None},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+        },
     )
     async def like_album(  # type: ignore[override]
         request: SLikeAlbumRequest = Depends(SLikeAlbumRequest),
@@ -177,7 +229,10 @@ class Router(BaseRouter):
     @router_v1.patch(
         path="/{album_id}/unlike",
         summary="Unlike an album",
-        status_code=status.HTTP_202_ACCEPTED,
+        responses={
+            status.HTTP_204_NO_CONTENT: {"model": None},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+        },
     )
     async def unlike_album(  # type: ignore[override]
         request: SUnlikeAlbumRequest = Depends(SLikeAlbumRequest),
@@ -195,8 +250,11 @@ class Router(BaseRouter):
     @router_v1.post(
         path="/",
         summary="Create a new album",
-        response_model=SCreateAlbumResponse,
-        status_code=status.HTTP_201_CREATED,
+        responses={
+            status.HTTP_201_CREATED: {"model": SCreateAlbumResponse},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[status.HTTP_403_FORBIDDEN]}},
+            status.HTTP_409_CONFLICT: {"content": {"application/json": examples()[status.HTTP_409_CONFLICT]}},
+        },
     )
     async def create_album(  # type: ignore[override]
         request: SCreateAlbumRequest = Depends(SCreateAlbumRequest),
@@ -217,8 +275,11 @@ class Router(BaseRouter):
     @router_v1.put(
         path="/{album_id}",
         summary="Update an album",
-        response_model=SUpdateAlbumResponse,
-        status_code=status.HTTP_201_CREATED,
+        responses={
+            status.HTTP_200_OK: {"model": SUpdateAlbumResponse},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[status.HTTP_403_FORBIDDEN]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+        },
     )
     async def update_album(  # type: ignore[override]
         request: SUpdateAlbumRequest = Depends(SUpdateAlbumRequest),
@@ -242,7 +303,11 @@ class Router(BaseRouter):
     @router_v1.delete(
         path="/{album_id}",
         summary="Delete an album",
-        status_code=status.HTTP_202_ACCEPTED,
+        responses={
+            status.HTTP_204_NO_CONTENT: {"model": None},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[status.HTTP_403_FORBIDDEN]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+        },
     )
     async def delete_album(  # type: ignore[override]
         request: SDeleteAlbumRequest = Depends(SDeleteAlbumRequest),
