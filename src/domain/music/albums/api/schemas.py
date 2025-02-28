@@ -22,8 +22,8 @@ class BaseSUser(ABC):
     updated_at: datetime
     picture_url: str | None = None
     description: str | None = None
-    access_level: Literal['user', 'admin', 'superuser'] = 'user'
     telegram_id: int | None = None
+    access_level: Literal['user', 'admin', 'superuser'] = 'user'
     premium_level: Literal['none', 'bot', 'full'] = 'none'
 
 
@@ -40,14 +40,13 @@ class BaseSArtist(ABC):
 class BaseSTrack(ABC):
     id: int
     title: str
-    description: str | None
-    picture_url: str | None
     file_url: str
     views: int
     likes: int
-
     created_at: date
     updated_at: datetime
+    description: str | None = None
+    picture_url: str | None = None
 
 
 @dataclass
@@ -65,32 +64,29 @@ class BaseSAlbumRequest(ABC):
 class BaseSAlbumResponse(ABC):
     id: int
     title: str
-    picture_url: str | None
-    description: str | None
     type: Literal['album', 'single']
     views: int
     likes: int
-
     created_at: date
     updated_at: datetime
-
     artists: Sequence[BaseSArtist]
     tracks: Sequence[BaseSTrack]
     tags: Sequence[str]
+    picture_url: str | None = None
+    description: str | None = None
 
 
 @dataclass
 class BaseSAlbumItemResponse(ABC):
     id: int
     title: str
-    picture_url: str | None
-    description: str | None
     views: int
     likes: int
     type: Literal['album', 'single']
-
     created_at: date
     updated_at: datetime
+    picture_url: str | None = None
+    description: str | None = None
 
 
 @dataclass
@@ -138,8 +134,8 @@ class BaseSUpdateAlbumCoverRequest(ABC):
 @dataclass
 class BaseSCreateAlbumRequest(ABC):
     title: str
-    description: str | None
     tags: Sequence[str]
+    description: str | None = None
 
 
 @dataclass
@@ -153,7 +149,6 @@ class BaseSUpdateAlbumRequest(ABC):
     title: str | None = None
     picture_url: str | None = None
     description: str | None = None
-
     artists_ids: Sequence[int] | None = None
     tracks_ids: Sequence[int] | None = None
     tags: Sequence[str] | None = None
