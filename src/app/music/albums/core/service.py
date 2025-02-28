@@ -18,7 +18,7 @@ from src.app.music.albums.core.dtos import (
     PopularAlbumsRequestDTO,
     LikeAlbumRequestDTO,
     UnlikeAlbumRequestDTO,
-    UpdateAlbumCoverRequestDTO,
+    UpdateAlbumCoverRequestDTO, get_items_response,
 )
 from src.app.music.albums.interfaces.da.dao import get_postgres_dao_implementation
 from src.app.music.albums.interfaces.ma.mao import get_s3_mao_implementation
@@ -31,7 +31,6 @@ from src.domain.music.albums.core.service import BaseService
 from src.domain.music.albums.interfaces.da.dao import DAO
 from src.domain.music.albums.interfaces.ma.mao import MAO
 from src.infrastructure.loggers import app as logger
-from src.infrastructure.pages import get_page, get_has_next, get_has_previous
 
 
 @dataclass
@@ -97,12 +96,11 @@ class Service(BaseService):
                     viewers_ids.append(request.user_id)
                     await session.update_album(album_id=item.id, viewers_ids=viewers_ids)
 
-        return PopularAlbumsResponseDTO(
+        return get_items_response(
             total=total,
-            page=get_page(start=page.start, size=page.size),
-            has_next=get_has_next(total=total, start=page.start, size=page.size),
-            has_previous=get_has_previous(start=page.start, size=page.size),
-            size=len(items),
+            start=start,
+            size=size,
+            response_dto=PopularAlbumsResponseDTO,
             items=list(map(lambda album: AlbumItemResponseDTO(
                 id=album.id,
                 title=album.title,
