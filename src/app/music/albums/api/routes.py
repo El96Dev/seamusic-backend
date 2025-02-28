@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import AsyncGenerator
 
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from src.app.music.albums.api.utils import CurrentUser, get_current_user
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.api.routes import BaseRouter
@@ -38,7 +39,7 @@ router_v1 = APIRouter(prefix="/albums")
 
 def exceptions() -> dict[type[Exc], HTTPException]:
     return {
-        AlbumNotFoundError: HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=[{
+        AlbumNotFoundError: HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=[{
             "loc": ["string", 0],
             "msg": "Album not found",
             "type": "string",
@@ -65,7 +66,7 @@ def examples() -> dict:
                 "type": "string",
             }]
         }},
-        status.HTTP_409_CONFLICT:  {"example": {
+        status.HTTP_409_CONFLICT: {"example": {
             "detail": [{
                 "loc": ["string", 0],
                 "msg": "Album alreasy exists",
