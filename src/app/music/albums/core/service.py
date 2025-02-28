@@ -26,6 +26,8 @@ from src.domain.music.albums.core.exceptions import (
     AlbumNotFoundError,
     AlbumAlreasyExistsError,
     NoArtistRightsError,
+    AlbumNotLikedError,
+    AlbumAlreadyLikedError,
 )
 from src.domain.music.albums.core.service import BaseService
 from src.domain.music.albums.interfaces.da.dao import DAO
@@ -127,6 +129,8 @@ class Service(BaseService):
 
         if not album_exists:
             raise AlbumNotFoundError()
+        if request.user_id in album.likers_ids:
+            raise AlbumAlreadyLikedError("Album is already liked")
 
     async def unlike_album(self, album_id: int, user_id: int) -> None:
         logger.info("unlike_album service request")
@@ -141,6 +145,8 @@ class Service(BaseService):
 
         if not album_exists:
             raise AlbumNotFoundError()
+        if request.user_id not in album.likers_ids:
+            raise AlbumNotLikedError("Album is not liked yet")
 
     async def update_cover(self, album_id: int, user_id: int, data: bytes) -> None:
         logger.info("update_cover service request")

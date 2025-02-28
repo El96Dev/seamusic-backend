@@ -11,3 +11,11 @@ class AlbumAlreasyExistsError(Exc):
 
 class NoArtistRightsError(Exc):
     """You are not an artist"""
+
+
+class AlbumAlreadyLikedError(Exc):
+    """Album is already liked"""
+
+
+class AlbumNotLikedError(Exc):
+    """Album is not liked yet"""
