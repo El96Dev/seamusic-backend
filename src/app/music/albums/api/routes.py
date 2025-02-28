@@ -277,9 +277,9 @@ class Router(BaseRouter):
         summary="Create a new album",
         responses={
             status.HTTP_201_CREATED: {"model": SCreateAlbumResponse},
-            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[status.HTTP_403_FORBIDDEN]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistRightsError]}},
             status.HTTP_405_METHOD_NOT_ALLOWED: {"content": {"application/json": examples()[AlbumNotLikedError]}},
-            status.HTTP_409_CONFLICT: {"content": {"application/json": examples()[status.HTTP_409_CONFLICT]}},
+            status.HTTP_409_CONFLICT: {"content": {"application/json": examples()[AlbumAlreasyExistsError]}},
         },
     )
     async def create_album(  # type: ignore[override]
@@ -303,8 +303,8 @@ class Router(BaseRouter):
         summary="Update an album",
         responses={
             status.HTTP_200_OK: {"model": SUpdateAlbumResponse},
-            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[status.HTTP_403_FORBIDDEN]}},
-            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistRightsError]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
         },
     )
     async def update_album(  # type: ignore[override]
@@ -331,8 +331,8 @@ class Router(BaseRouter):
         summary="Delete an album",
         responses={
             status.HTTP_204_NO_CONTENT: {"model": None},
-            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[status.HTTP_403_FORBIDDEN]}},
-            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistRightsError]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
         },
     )
     async def delete_album(  # type: ignore[override]
