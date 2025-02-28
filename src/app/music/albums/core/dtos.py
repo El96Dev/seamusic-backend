@@ -2,7 +2,6 @@ from datetime import date, datetime
 from typing import Generic, TypeVar, Literal
 
 from pydantic import EmailStr, BaseModel
-
 from src.domain.music.albums.core.dtos import (
     BasePopularAlbumsRequestDTO,
     BasePopularAlbumsResponseDTO,
@@ -33,41 +32,38 @@ PremiumLevel = Literal["none", "bot", "full"]
 class UserDTO(BaseUserDTO, BaseModel):
     id: int
     username: str
-    description: str | None = None
     email: EmailStr
     password: str
-    picture_url: str | None = None
-    access_level: AccessLevel = "user"
-    telegram_id: int | None = None
-    premium_level: PremiumLevel = "none"
-
     is_active: bool
     is_adult: bool
     is_verified: bool
-
     created_at: date
     updated_at: datetime
+    description: str | None = None
+    picture_url: str | None = None
+    telegram_id: int | None = None
+    access_level: AccessLevel = "user"
+    premium_level: PremiumLevel = "none"
 
 
 class ArtistDTO(BaseArtistDTO, BaseModel):
     id: int
     username: str
+    user_id: int
     description: str | None = None
     picture_url: str | None = None
-    user_id: int
 
 
 class TrackDTO(BaseTrackDTO, BaseModel):
     id: int
     title: str
-    description: str | None
-    picture_url: str | None
     file_url: str
     views: int
     likes: int
-
     created_at: date
     updated_at: datetime
+    description: str | None = None
+    picture_url: str | None = None
 
 
 class ItemsRequestDTO(BaseItemsRequestDTO, BaseModel):
@@ -92,31 +88,28 @@ class AlbumRequestDTO(BaseAlbumRequestDTO, BaseModel):
 class AlbumResponseDTO(BaseAlbumResponseDTO, BaseModel):
     id: int
     title: str
-    picture_url: str | None
-    description: str | None
     type: AlbumType
     views: int
     likes: int
-
     created_at: date
     updated_at: datetime
-
     artists: list[ArtistDTO]  # type: ignore[assignment]
     tracks: list[TrackDTO]  # type: ignore[assignment]
     tags: list[str]
+    picture_url: str | None = None
+    description: str | None = None
 
 
 class AlbumItemResponseDTO(BaseAlbumItemResponseDTO, BaseModel):
     id: int
     title: str
-    picture_url: str | None
-    description: str | None
     views: int
     likes: int
     type: AlbumType
-
     created_at: date
     updated_at: datetime
+    picture_url: str | None = None
+    description: str | None = None
 
 
 class PopularAlbumsRequestDTO(BasePopularAlbumsRequestDTO, BaseModel):
@@ -150,8 +143,8 @@ class UpdateAlbumCoverRequestDTO(BaseUpdateAlbumCoverRequestDTO, BaseModel):
 class CreateAlbumRequestDTO(BaseCreateAlbumRequestDTO, BaseModel):
     title: str
     user_id: int
-    description: str | None
     tags: list[str]
+    description: str | None = None
 
 
 class CreateAlbumResponseDTO(BaseCreateAlbumResponseDTO, BaseModel):
@@ -164,7 +157,6 @@ class UpdateAlbumRequestDTO(BaseUpdateAlbumRequestDTO, BaseModel):
     title: str | None = None
     picture_url: str | None = None
     description: str | None = None
-
     artists_ids: list[int] | None = None
     tracks_ids: list[int] | None = None
     tags: list[str] | None = None
