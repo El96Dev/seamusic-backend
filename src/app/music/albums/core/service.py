@@ -129,7 +129,7 @@ class Service(BaseService):
 
         if not album_exists:
             raise AlbumNotFoundError()
-        if request.user_id in album.likers_ids:
+        if request.user_id in album.likers_ids:  # type: ignore[union-attr]
             raise AlbumAlreadyLikedError("Album is already liked")
 
     async def unlike_album(self, album_id: int, user_id: int) -> None:
@@ -145,7 +145,7 @@ class Service(BaseService):
 
         if not album_exists:
             raise AlbumNotFoundError()
-        if request.user_id not in album.likers_ids:
+        if request.user_id not in album.likers_ids:  # type: ignore[union-attr]
             raise AlbumNotLikedError("Album is not liked yet")
 
     async def update_cover(self, album_id: int, user_id: int, data: bytes) -> None:
