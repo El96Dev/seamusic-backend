@@ -183,6 +183,6 @@ def get_items_response(  # type: ignore[no-untyped-def]
         page=get_page(start=offset, size=limit),
         has_next=get_has_next(total=total, start=offset, size=limit),
         has_previous=get_has_previous(start=offset, size=limit),
-        size=limit,
+        size=len(items),
         items=items,
     )
