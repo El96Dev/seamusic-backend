@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import AsyncGenerator
 
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from src.app.music.albums.api.utils import CurrentUser, get_current_user
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.api.routes import BaseRouter
@@ -34,7 +33,7 @@ from src.presentation.music.albums.schemas import (
     SUnlikeAlbumRequest,
 )
 
-router_v1 = APIRouter(prefix="/albums")
+router_v1 = APIRouter(prefix="/albums", tags=["albums"])
 
 
 def exceptions() -> dict[type[Exc], HTTPException]:
