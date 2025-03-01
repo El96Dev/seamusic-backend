@@ -13,6 +13,10 @@ class NoArtistRightsError(Exc):
     """You are not an artist"""
 
 
+class NoRightsError(Exc):
+    """Not enough rights for perfoming an operation"""
+
+
 class AlbumAlreadyLikedError(Exc):
     """Album is already liked"""
 

@@ -1,4 +1,4 @@
-from typing import Any
+from types import TracebackType
 
 from fastapi import HTTPException
 
@@ -21,6 +21,6 @@ class ExceptionHandler:
     async def __aenter__(self) -> "ExceptionHandler":
         return self
 
-    async def __aexit__(self, exc_type: type[Exc] | None, exc_val: Exc | None, exc_tb: Any | None) -> None:
+    async def __aexit__(self, exc_type: type[Exc] | None, exc_val: Exc | None, exc_tb: TracebackType | None) -> None:
         if exc_type and exc_val and (translated_exc := self.exceptions.get(exc_type)):
             raise translated_exc

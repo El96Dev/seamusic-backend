@@ -3,13 +3,17 @@ from dataclasses import dataclass
 from typing import AsyncGenerator
 
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from src.app.music.albums.api.utils import CurrentUser, get_current_user
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.api.routes import BaseRouter
 from src.domain.music.albums.core.exceptions import (
     AlbumNotFoundError,
     AlbumAlreasyExistsError,
-    NoArtistRightsError, AlbumAlreadyLikedError, AlbumNotLikedError,
+    NoArtistRightsError,
+    AlbumAlreadyLikedError,
+    AlbumNotLikedError,
+    NoRightsError,
 )
 from src.domain.music.albums.core.service import BaseService
 from src.infrastructure.api import ExceptionHandler
@@ -62,7 +66,12 @@ def exceptions() -> dict[type[Exc], HTTPException]:
             "loc": ["string", 0],
             "msg": "Album is not liked, so cannot be unliked",
             "type": "string",
-        }])
+        }]),
+        NoRightsError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=[{
+            "loc": ["string", 0],
+            "msg": "Not enough rights for perfoming an operation",
+            "type": "string",
+        }]),
     }
 
 
@@ -100,6 +109,13 @@ def examples() -> dict:
             "detail": [{
                 "loc": ["string", 0],
                 "msg": "Album is not liked, so cannot be unliked",
+                "type": "string",
+            }]
+        }},
+        NoRightsError: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Not enough rights for perfoming an operation",
                 "type": "string",
             }]
         }},
@@ -213,6 +229,7 @@ class Router(BaseRouter):
         responses={
             status.HTTP_204_NO_CONTENT: {"model": None},
             status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoRightsError]}},
         },
     )
     async def update_cover(  # type: ignore[override]
@@ -303,7 +320,7 @@ class Router(BaseRouter):
         summary="Update an album",
         responses={
             status.HTTP_200_OK: {"model": SUpdateAlbumResponse},
-            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistRightsError]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoRightsError]}},
             status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
         },
     )
