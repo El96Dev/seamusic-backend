@@ -9,7 +9,7 @@ class AlbumAlreasyExistsError(Exc):
     """Album already exists"""
 
 
-class NoArtistRightsError(Exc):
+class NoArtistProfileError(Exc):
     """You are not an artist"""
 
 

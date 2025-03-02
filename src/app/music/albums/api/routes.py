@@ -3,14 +3,13 @@ from dataclasses import dataclass
 from typing import AsyncGenerator
 
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from src.app.music.albums.api.utils import CurrentUser, get_current_user
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.api.routes import BaseRouter
 from src.domain.music.albums.core.exceptions import (
     AlbumNotFoundError,
     AlbumAlreasyExistsError,
-    NoArtistRightsError,
+    NoArtistProfileError,
     AlbumAlreadyLikedError,
     AlbumNotLikedError,
     NoRightsError,
@@ -52,7 +51,7 @@ def exceptions() -> dict[type[Exc], HTTPException]:
             "msg": "Album alreasy exists",
             "type": "string",
         }]),
-        NoArtistRightsError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=[{
+        NoArtistProfileError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=[{
             "loc": ["string", 0],
             "msg": "You don't have an artist profile",
             "type": "string",
@@ -91,7 +90,7 @@ def examples() -> dict:
                 "type": "string",
             }]
         }},
-        NoArtistRightsError: {"example": {
+        NoArtistProfileError: {"example": {
             "detail": [{
                 "loc": ["string", 0],
                 "msg": "You don't have an artist profile",
@@ -294,7 +293,7 @@ class Router(BaseRouter):
         summary="Create a new album",
         responses={
             status.HTTP_201_CREATED: {"model": SCreateAlbumResponse},
-            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistRightsError]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistProfileError]}},
             status.HTTP_405_METHOD_NOT_ALLOWED: {"content": {"application/json": examples()[AlbumNotLikedError]}},
             status.HTTP_409_CONFLICT: {"content": {"application/json": examples()[AlbumAlreasyExistsError]}},
         },
@@ -348,7 +347,7 @@ class Router(BaseRouter):
         summary="Delete an album",
         responses={
             status.HTTP_204_NO_CONTENT: {"model": None},
-            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistRightsError]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistProfileError]}},
             status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
         },
     )

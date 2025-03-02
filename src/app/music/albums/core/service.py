@@ -26,7 +26,7 @@ from src.app.music.albums.interfaces.ma.mao import get_s3_mao_implementation
 from src.domain.music.albums.core.exceptions import (
     AlbumNotFoundError,
     AlbumAlreasyExistsError,
-    NoArtistRightsError,
+    NoArtistProfileError,
     AlbumNotLikedError,
     AlbumAlreadyLikedError,
     NoRightsError,
@@ -169,7 +169,7 @@ class Service(BaseService):
         if not album_exists:
             raise AlbumNotFoundError()
         if not artist_exists:
-            raise NoArtistRightsError()
+            raise NoArtistProfileError()
         if not not artists_rights:
             raise NoRightsError()
 
@@ -203,7 +203,7 @@ class Service(BaseService):
                     )
 
         if not artist_exists:
-            raise NoArtistRightsError()
+            raise NoArtistProfileError()
         if album_exists:
             raise AlbumAlreasyExistsError()
 
@@ -273,7 +273,7 @@ class Service(BaseService):
         if not album_exists:
             raise AlbumNotFoundError()
         if artist_id not in album_artists_ids:
-            raise NoArtistRightsError()
+            raise NoArtistProfileError()
 
 
 def get_service() -> Service:
