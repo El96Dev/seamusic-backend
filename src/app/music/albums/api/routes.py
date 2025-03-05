@@ -1,11 +1,23 @@
+from contextlib import asynccontextmanager
 from dataclasses import dataclass
+from typing import AsyncGenerator
 
-from fastapi import APIRouter, Depends, status
-
+from fastapi import APIRouter, Depends, HTTPException, status
 from src.app.music.albums.api.utils import CurrentUser, get_current_user
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.api.routes import BaseRouter
+from src.domain.music.albums.core.exceptions import (
+    AlbumNotFoundError,
+    AlbumAlreasyExistsError,
+    NoArtistProfileError,
+    AlbumAlreadyLikedError,
+    AlbumNotLikedError,
+    NoRightsError,
+)
 from src.domain.music.albums.core.service import BaseService
+from src.infrastructure.api import ExceptionHandler
+from src.infrastructure.exceptions import Exc
+from src.infrastructure.loggers import app as logger
 from src.presentation.music.albums.schemas import (
     SAlbumRequest,
     SAlbumResponse,
@@ -14,8 +26,6 @@ from src.presentation.music.albums.schemas import (
     SAlbumItemResponse,
     SPopularAlbumsResponse,
     SItemsRequest,
-    SArtistAlbumsRequest,
-    SArtistAlbumsResponse,
     SUpdateAlbumCoverRequest,
     SLikeAlbumRequest,
     SCreateAlbumRequest,
@@ -26,24 +36,116 @@ from src.presentation.music.albums.schemas import (
     SUnlikeAlbumRequest,
 )
 
-router_v1 = APIRouter(prefix='/albums')
+router_v1 = APIRouter(prefix="/albums", tags=["albums"])
+
+
+def exceptions() -> dict[type[Exc], HTTPException]:
+    return {
+        AlbumNotFoundError: HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=[{
+            "loc": ["string", 0],
+            "msg": "Album not found",
+            "type": "string",
+        }]),
+        AlbumAlreasyExistsError: HTTPException(status_code=status.HTTP_409_CONFLICT, detail=[{
+            "loc": ["string", 0],
+            "msg": "Album alreasy exists",
+            "type": "string",
+        }]),
+        NoArtistProfileError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=[{
+            "loc": ["string", 0],
+            "msg": "You don't have an artist profile",
+            "type": "string",
+        }]),
+        AlbumAlreadyLikedError: HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail=[{
+            "loc": ["string", 0],
+            "msg": "Album is already liked, so cannot be liked twice",
+            "type": "string",
+        }]),
+        AlbumNotLikedError: HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail=[{
+            "loc": ["string", 0],
+            "msg": "Album is not liked, so cannot be unliked",
+            "type": "string",
+        }]),
+        NoRightsError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=[{
+            "loc": ["string", 0],
+            "msg": "Not enough rights for perfoming an operation",
+            "type": "string",
+        }]),
+    }
+
+
+def examples() -> dict:
+    return {
+        AlbumNotFoundError: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Album not found",
+                "type": "string",
+            }]
+        }},
+        AlbumAlreasyExistsError: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Album alreasy exists",
+                "type": "string",
+            }]
+        }},
+        NoArtistProfileError: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "You don't have an artist profile",
+                "type": "string",
+            }]
+        }},
+        AlbumAlreadyLikedError: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Album is already liked, so cannot be liked twice",
+                "type": "string",
+            }]
+        }},
+        AlbumNotLikedError: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Album is not liked, so cannot be unliked",
+                "type": "string",
+            }]
+        }},
+        NoRightsError: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Not enough rights for perfoming an operation",
+                "type": "string",
+            }]
+        }},
+    }
+
+
+@asynccontextmanager
+async def exception_handler() -> AsyncGenerator[ExceptionHandler, None]:
+    async with ExceptionHandler(exceptions=exceptions()) as handler:
+        yield handler
 
 
 @dataclass
 class Router(BaseRouter):
     @staticmethod
     @router_v1.get(
-        path='/{album_id}',
-        summary='Get an album by it\'s id',
-        response_model=SAlbumResponse,
-        status_code=status.HTTP_200_OK,
+        path="/{album_id}",
+        summary="Get an album by it\'s id",
+        responses={
+            status.HTTP_200_OK: {"model": SAlbumResponse},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
+        },
     )
     async def get_album(  # type: ignore[override]
         request: SAlbumRequest = Depends(SAlbumRequest),
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SAlbumResponse:
-        album = await service.get_album(album_id=request.album_id, user_id=current_user.id)
+        logger.info("get_album API request")
+        async with exception_handler():
+            album = await service.get_album(album_id=request.album_id, user_id=current_user.id)
         return SAlbumResponse(
             id=album.id,
             title=album.title,
@@ -83,17 +185,20 @@ class Router(BaseRouter):
 
     @staticmethod
     @router_v1.get(
-        path='/',
-        summary='Get popular albums',
-        response_model=SPopularAlbumsResponse,
-        status_code=status.HTTP_200_OK,
+        path="/",
+        summary="Get popular albums",
+        responses={
+            status.HTTP_200_OK: {"model": SPopularAlbumsResponse},
+        },
     )
     async def get_popular_albums(  # type: ignore[override]
         page: SItemsRequest = Depends(SItemsRequest),
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SPopularAlbumsResponse:
-        albums = await service.get_popular_albums(user_id=current_user.id, start=page.start, size=page.size)
+        logger.info("get_popular_albums API request")
+        async with exception_handler():
+            albums = await service.get_popular_albums(user_id=current_user.id, start=page.start, size=page.size)
         return SPopularAlbumsResponse(
             has_next=albums.has_next,
             has_previous=albums.has_previous,
@@ -117,139 +222,147 @@ class Router(BaseRouter):
         )
 
     @staticmethod
-    @router_v1.get(
-        path='/artist/{artist_id}',
-        summary='Get albums made by specified artist',
-        response_model=SArtistAlbumsResponse,
-        status_code=status.HTTP_200_OK,
-    )
-    async def get_artist_albums(  # type: ignore[override]
-        request: SArtistAlbumsRequest = Depends(SArtistAlbumsRequest),
-        service: BaseService = Depends(get_service),
-    ) -> SArtistAlbumsResponse:
-        response = await service.get_artists_albums(artist_id=request.artist_id)
-        return SArtistAlbumsResponse(
-            total=response.total,
-            items=list(map(
-                lambda item: SAlbumItemResponse(
-                    id=item.id,
-                    title=item.title,
-                    picture_url=item.picture_url,
-                    description=item.description,
-                    views=item.views,
-                    likes=item.likes,
-                    type=item.type,
-                    created_at=item.created_at,
-                    updated_at=item.updated_at,
-                ),
-                response.items,
-            )),
-        )
-
-    @staticmethod
     @router_v1.put(
-        path='/{album_id}/cover',
-        summary='Update an album cover',
-        status_code=status.HTTP_202_ACCEPTED,
+        path="/{album_id}/cover",
+        summary="Update an album cover",
+        responses={
+            status.HTTP_204_NO_CONTENT: {"model": None},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoRightsError]}},
+        },
     )
     async def update_cover(  # type: ignore[override]
         request: SUpdateAlbumCoverRequest = Depends(SUpdateAlbumCoverRequest),
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
-        await service.update_cover(
-            album_id=request.album_id,
-            user_id=current_user.id,
-            data=await request.file.read()
-        )
+        logger.info("update_cover API request")
+        async with exception_handler():
+            await service.update_cover(
+                album_id=request.album_id,
+                user_id=current_user.id,
+                data=await request.file.read()
+            )
 
     @staticmethod
     @router_v1.patch(
-        path='/{album_id}/like',
-        summary='Like an album',
-        status_code=status.HTTP_202_ACCEPTED,
+        path="/{album_id}/like",
+        summary="Like an album",
+        responses={
+            status.HTTP_204_NO_CONTENT: {"model": None},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
+        },
     )
     async def like_album(  # type: ignore[override]
         request: SLikeAlbumRequest = Depends(SLikeAlbumRequest),
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
-        await service.like_album(
-            user_id=current_user.id,
-            album_id=request.album_id,
-        )
+        logger.info("like_album API request")
+        async with exception_handler():
+            await service.like_album(
+                user_id=current_user.id,
+                album_id=request.album_id,
+            )
 
     @staticmethod
     @router_v1.patch(
-        path='/{album_id}/unlike',
-        summary='Unlike an album',
-        status_code=status.HTTP_202_ACCEPTED,
+        path="/{album_id}/unlike",
+        summary="Unlike an album",
+        responses={
+            status.HTTP_204_NO_CONTENT: {"model": None},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
+            status.HTTP_405_METHOD_NOT_ALLOWED: {"content": {"application/json": examples()[AlbumAlreadyLikedError]}},
+        },
     )
     async def unlike_album(  # type: ignore[override]
         request: SUnlikeAlbumRequest = Depends(SLikeAlbumRequest),
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
-        await service.unlike_album(
-            user_id=current_user.id,
-            album_id=request.album_id,
-        )
+        logger.info("unlike_album API request")
+        async with exception_handler():
+            await service.unlike_album(
+                user_id=current_user.id,
+                album_id=request.album_id,
+            )
 
     @staticmethod
     @router_v1.post(
-        path='/new',
-        summary='Create a new album',
-        response_model=SCreateAlbumResponse,
-        status_code=status.HTTP_201_CREATED,
+        path="/",
+        summary="Create a new album",
+        responses={
+            status.HTTP_201_CREATED: {"model": SCreateAlbumResponse},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistProfileError]}},
+            status.HTTP_405_METHOD_NOT_ALLOWED: {"content": {"application/json": examples()[AlbumNotLikedError]}},
+            status.HTTP_409_CONFLICT: {"content": {"application/json": examples()[AlbumAlreasyExistsError]}},
+        },
     )
     async def create_album(  # type: ignore[override]
         request: SCreateAlbumRequest = Depends(SCreateAlbumRequest),
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SCreateAlbumResponse:
-        response = await service.create_album(
-            user_id=current_user.id,
-            title=request.title,
-            description=request.description,
-            tags=request.tags,
-        )
+        logger.info("create_album API request")
+        async with exception_handler():
+            response = await service.create_album(
+                user_id=current_user.id,
+                title=request.title,
+                description=request.description,
+                tags=request.tags,
+            )
         return SCreateAlbumResponse(id=response.id)
 
     @staticmethod
     @router_v1.put(
-        path='/{album_id}',
-        summary='Update an album',
-        response_model=SUpdateAlbumResponse,
-        status_code=status.HTTP_201_CREATED,
+        path="/{album_id}",
+        summary="Update an album",
+        responses={
+            status.HTTP_200_OK: {"model": SUpdateAlbumResponse},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoRightsError]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
+        },
     )
     async def update_album(  # type: ignore[override]
         request: SUpdateAlbumRequest = Depends(SUpdateAlbumRequest),
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> SUpdateAlbumResponse:
-        response = await service.update_album(
-            album_id=request.id,
-            user_id=current_user.id,
-            title=request.title,
-            description=request.description,
-            artists_ids=request.artists_ids,
-            tracks_ids=request.tracks_ids,
-            tags=request.tags,
-        )
+        logger.info("update_album API request")
+        async with exception_handler():
+            response = await service.update_album(
+                album_id=request.id,
+                user_id=current_user.id,
+                title=request.title,
+                description=request.description,
+                artists_ids=request.artists_ids,
+                tracks_ids=request.tracks_ids,
+                tags=request.tags,
+            )
         return SUpdateAlbumResponse(id=response.id)
 
     @staticmethod
     @router_v1.delete(
-        path='/{album_id}',
-        summary='Delete an album',
-        status_code=status.HTTP_202_ACCEPTED,
+        path="/{album_id}",
+        summary="Delete an album",
+        responses={
+            status.HTTP_204_NO_CONTENT: {"model": None},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistProfileError]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
+        },
     )
     async def delete_album(  # type: ignore[override]
         request: SDeleteAlbumRequest = Depends(SDeleteAlbumRequest),
         service: BaseService = Depends(get_service),
         current_user: CurrentUser = Depends(get_current_user),
     ) -> None:
-        await service.delete_album(
-            album_id=request.album_id,
-            user_id=current_user.id,
-        )
+        logger.info("delete_album API request")
+        async with exception_handler():
+            await service.delete_album(
+                album_id=request.album_id,
+                user_id=current_user.id,
+            )
+
+
+def get_router() -> Router:
+    return Router()
