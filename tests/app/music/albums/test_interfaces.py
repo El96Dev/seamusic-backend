@@ -9,6 +9,8 @@ from src.app.music.albums.interfaces.ma.mao import S3MAOImplementation, get_s3_m
 from tests.app.music.albums.fixtures import AlbumTestModel, album  # noqa: F401
 
 
+@pytest.mark.album
+@pytest.mark.album_dao
 class TestPostgresDAOImplementation:
     @pytest.fixture(scope="function")
     def dao_impl_factory(self) -> Callable[[], PostgresDAOImplementation]:
