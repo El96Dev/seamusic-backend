@@ -2,6 +2,7 @@ from datetime import date, datetime
 from typing import Generic, TypeVar, Literal
 
 from pydantic import EmailStr, BaseModel
+
 from src.domain.music.albums.core.dtos import (
     BasePopularAlbumsRequestDTO,
     BasePopularAlbumsResponseDTO,
