@@ -9,7 +9,10 @@ from src.domain.music.albums.api.routes import BaseRouter
 from src.domain.music.albums.core.exceptions import (
     AlbumNotFoundError,
     AlbumAlreasyExistsError,
-    NoArtistRightsError,
+    NoArtistProfileError,
+    AlbumAlreadyLikedError,
+    AlbumNotLikedError,
+    NoRightsError,
 )
 from src.domain.music.albums.core.service import BaseService
 from src.infrastructure.api import ExceptionHandler
@@ -33,7 +36,7 @@ from src.presentation.music.albums.schemas import (
     SUnlikeAlbumRequest,
 )
 
-router_v1 = APIRouter(prefix="/albums", tags=["tags"])
+router_v1 = APIRouter(prefix="/albums", tags=["albums"])
 
 
 def exceptions() -> dict[type[Exc], HTTPException]:
@@ -48,9 +51,24 @@ def exceptions() -> dict[type[Exc], HTTPException]:
             "msg": "Album alreasy exists",
             "type": "string",
         }]),
-        NoArtistRightsError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=[{
+        NoArtistProfileError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=[{
             "loc": ["string", 0],
             "msg": "You don't have an artist profile",
+            "type": "string",
+        }]),
+        AlbumAlreadyLikedError: HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail=[{
+            "loc": ["string", 0],
+            "msg": "Album is already liked, so cannot be liked twice",
+            "type": "string",
+        }]),
+        AlbumNotLikedError: HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail=[{
+            "loc": ["string", 0],
+            "msg": "Album is not liked, so cannot be unliked",
+            "type": "string",
+        }]),
+        NoRightsError: HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=[{
+            "loc": ["string", 0],
+            "msg": "Not enough rights for perfoming an operation",
             "type": "string",
         }]),
     }
@@ -58,24 +76,45 @@ def exceptions() -> dict[type[Exc], HTTPException]:
 
 def examples() -> dict:
     return {
-        status.HTTP_404_NOT_FOUND: {"example": {
+        AlbumNotFoundError: {"example": {
             "detail": [{
                 "loc": ["string", 0],
                 "msg": "Album not found",
                 "type": "string",
             }]
         }},
-        status.HTTP_409_CONFLICT: {"example": {
+        AlbumAlreasyExistsError: {"example": {
             "detail": [{
                 "loc": ["string", 0],
                 "msg": "Album alreasy exists",
                 "type": "string",
             }]
         }},
-        status.HTTP_403_FORBIDDEN: {"example": {
+        NoArtistProfileError: {"example": {
             "detail": [{
                 "loc": ["string", 0],
                 "msg": "You don't have an artist profile",
+                "type": "string",
+            }]
+        }},
+        AlbumAlreadyLikedError: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Album is already liked, so cannot be liked twice",
+                "type": "string",
+            }]
+        }},
+        AlbumNotLikedError: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Album is not liked, so cannot be unliked",
+                "type": "string",
+            }]
+        }},
+        NoRightsError: {"example": {
+            "detail": [{
+                "loc": ["string", 0],
+                "msg": "Not enough rights for perfoming an operation",
                 "type": "string",
             }]
         }},
@@ -96,7 +135,7 @@ class Router(BaseRouter):
         summary="Get an album by it's id",
         responses={
             status.HTTP_200_OK: {"model": SAlbumResponse},
-            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
         },
     )
     async def get_album(  # type: ignore[override]
@@ -188,7 +227,8 @@ class Router(BaseRouter):
         summary="Update an album cover",
         responses={
             status.HTTP_204_NO_CONTENT: {"model": None},
-            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoRightsError]}},
         },
     )
     async def update_cover(  # type: ignore[override]
@@ -210,7 +250,7 @@ class Router(BaseRouter):
         summary="Like an album",
         responses={
             status.HTTP_204_NO_CONTENT: {"model": None},
-            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
         },
     )
     async def like_album(  # type: ignore[override]
@@ -231,7 +271,8 @@ class Router(BaseRouter):
         summary="Unlike an album",
         responses={
             status.HTTP_204_NO_CONTENT: {"model": None},
-            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
+            status.HTTP_405_METHOD_NOT_ALLOWED: {"content": {"application/json": examples()[AlbumAlreadyLikedError]}},
         },
     )
     async def unlike_album(  # type: ignore[override]
@@ -252,8 +293,9 @@ class Router(BaseRouter):
         summary="Create a new album",
         responses={
             status.HTTP_201_CREATED: {"model": SCreateAlbumResponse},
-            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[status.HTTP_403_FORBIDDEN]}},
-            status.HTTP_409_CONFLICT: {"content": {"application/json": examples()[status.HTTP_409_CONFLICT]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistProfileError]}},
+            status.HTTP_405_METHOD_NOT_ALLOWED: {"content": {"application/json": examples()[AlbumNotLikedError]}},
+            status.HTTP_409_CONFLICT: {"content": {"application/json": examples()[AlbumAlreasyExistsError]}},
         },
     )
     async def create_album(  # type: ignore[override]
@@ -277,8 +319,8 @@ class Router(BaseRouter):
         summary="Update an album",
         responses={
             status.HTTP_200_OK: {"model": SUpdateAlbumResponse},
-            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[status.HTTP_403_FORBIDDEN]}},
-            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoRightsError]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
         },
     )
     async def update_album(  # type: ignore[override]
@@ -305,8 +347,8 @@ class Router(BaseRouter):
         summary="Delete an album",
         responses={
             status.HTTP_204_NO_CONTENT: {"model": None},
-            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[status.HTTP_403_FORBIDDEN]}},
-            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[status.HTTP_404_NOT_FOUND]}},
+            status.HTTP_403_FORBIDDEN: {"content": {"application/json": examples()[NoArtistProfileError]}},
+            status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},
         },
     )
     async def delete_album(  # type: ignore[override]

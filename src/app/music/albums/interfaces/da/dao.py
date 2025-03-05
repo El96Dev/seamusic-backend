@@ -3,7 +3,6 @@ from datetime import date, datetime
 from typing import Self, Literal
 
 from sqlalchemy import select, func
-
 from src.app.auth.artists.models import ArtistProfile
 from src.app.auth.users.models import User
 from src.app.music.albums.interfaces.da.models import Album
@@ -39,7 +38,7 @@ class PostgresDAOImplementation(PostgresSessionMixin, DAO):
 
     async def count_albums(self) -> int:
         logger.info("count_albums DAO request")
-        return await self.run(select(func.count(Album.id).group_by(Album.id)), "scalar")
+        return await self.run(select(func.count(Album.id)), "scalar")
 
     async def get_artist_id_by_user_id(self, user_id: int) -> int | None:
         logger.info("get_artist_id_by_user_id DAO request")

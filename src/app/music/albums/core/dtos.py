@@ -2,6 +2,7 @@ from datetime import date, datetime
 from typing import Generic, TypeVar, Literal
 
 from pydantic import EmailStr, BaseModel
+
 from src.domain.music.albums.core.dtos import (
     BasePopularAlbumsRequestDTO,
     BasePopularAlbumsResponseDTO,
@@ -172,17 +173,17 @@ class DeleteAlbumRequestDTO(BaseDeleteAlbumRequestDTO, BaseModel):
 
 
 def get_items_response(  # type: ignore[no-untyped-def]
-    offset: int,
-    limit: int,
+    start: int,
+    size: int,
     total: int,
     items: list[ItemType],
     response_dto: type[ItemsResponseDTO]
 ):
     return response_dto(
         total=total,
-        page=get_page(start=offset, size=limit),
-        has_next=get_has_next(total=total, start=offset, size=limit),
-        has_previous=get_has_previous(start=offset, size=limit),
-        size=limit,
+        page=get_page(start=start, size=size),
+        has_next=get_has_next(total=total, start=start, size=size),
+        has_previous=get_has_previous(start=start, size=size),
+        size=len(items),
         items=items,
     )

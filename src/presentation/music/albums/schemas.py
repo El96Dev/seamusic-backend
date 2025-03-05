@@ -3,7 +3,7 @@ from datetime import date, datetime
 from typing import Literal
 
 from fastapi import UploadFile
-from pydantic import EmailStr
+
 from src.domain.music.albums.api.schemas import (
     BaseSUser,
     BaseSArtist,
@@ -29,7 +29,7 @@ from src.domain.music.albums.api.schemas import (
 class SUser(BaseSUser):
     id: int
     username: str
-    email: EmailStr
+    email: str
     password: str
     is_active: bool
     is_adult: bool

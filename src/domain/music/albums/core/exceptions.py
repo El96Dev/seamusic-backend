@@ -9,5 +9,17 @@ class AlbumAlreasyExistsError(Exc):
     """Album already exists"""
 
 
-class NoArtistRightsError(Exc):
+class NoArtistProfileError(Exc):
     """You are not an artist"""
+
+
+class NoRightsError(Exc):
+    """Not enough rights for perfoming an operation"""
+
+
+class AlbumAlreadyLikedError(Exc):
+    """Album is already liked"""
+
+
+class AlbumNotLikedError(Exc):
+    """Album is not liked yet"""

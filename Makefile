@@ -1,4 +1,5 @@
 install:
+	sudo rm -rf .venv
 	uv venv --python 3.11.11
 	uv sync
 
