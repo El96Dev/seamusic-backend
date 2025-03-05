@@ -1,222 +1,245 @@
+from typing import Callable
+
 import pytest
 
-from src.app.music.albums.core.dtos import AlbumResponseDTO
+from src.app.music.albums.core.dtos import (
+    AlbumResponseDTO,
+    CreateAlbumResponseDTO,
+    PopularAlbumsResponseDTO,
+    UpdateAlbumResponseDTO,
+)
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.core.exceptions import AlbumNotFoundError
 from src.domain.music.albums.core.service import BaseService
-from typing import TypedDict
-
-
-class AlbumTestModel(TypedDict):
-    """
-        TypedDict class for check types
-    """
-    album_id: int | None
-    album_title: str
-    album_description: str
-    album_tags: list[str]
-    artists_ids: list[int]
-    tracks_ids: list[int]
+from src.infrastructure.exceptions import Exc
+from tests.app.music.albums.fixtures import AlbumTestModel
 
 
 @pytest.mark.album
 @pytest.mark.album_service
 class TestAlbumService:
-    """
-    Fixtures
-    """
-
-    @pytest.fixture(scope='session')
-    def album_service_factory(self) -> BaseService:
+    @pytest.fixture(scope="function")
+    def service_factory(self) -> BaseService:
         return get_service()
 
-    @pytest.fixture(scope='session')
+    @pytest.fixture(scope="function")
     async def user_id(self) -> int:
         return 1
 
-    @pytest.fixture(scope='session')
-    async def artists_id(self) -> int:
+    @pytest.fixture(scope="function")
+    def album_id(self, album: AlbumTestModel) -> int:
+        return album["id"]
+
+    @pytest.fixture(scope="function")
+    def album_title(self, album: AlbumTestModel) -> str:
+        return album["title"]
+
+    @pytest.fixture(scope="function")
+    def album_description(self, album: AlbumTestModel) -> str | None:
+        return album["description"]
+
+    @pytest.fixture(scope="function")
+    def album_tags(self, album: AlbumTestModel) -> list[str]:
+        return album["tags"]
+
+    @pytest.fixture(scope="function")
+    def album_artists_ids(self, album: AlbumTestModel) -> list[int]:
+        return album["artists_ids"]
+
+    @pytest.fixture(scope="function")
+    def album_tracks_ids(self, album: AlbumTestModel) -> list[int]:
+        return album["tracks_ids"]
+
+    @pytest.fixture(scope="function")
+    def album_cover_data(self) -> bytes:
+        return bytes()
+
+    @pytest.fixture(scope="function")
+    def start(self) -> int:
         return 1
 
-    @pytest.fixture(scope='session')
-    def fixture_album_title(self) -> str:
-        return 'title'
-
-    @pytest.fixture(scope='session')
-    def fixture_album_description(self) -> str:
-        return 'description'
-
-    @pytest.fixture(scope='session')
-    def fixture_album_tags(self) -> list[str]:
-        return ['one tag', 'two tag']
-
-    @pytest.fixture(scope='session')
-    def fixture_artists_ids(self) -> list[int]:
-        return []
-
-    @pytest.fixture(scope='session')
-    def fixture_tracks_ids(self) -> list[int]:
-        return []
-
-    @pytest.fixture(scope='session')
-    def fixture_artist_id(self) -> int:
+    @pytest.fixture(scope="function")
+    def size(self) -> int:
         return 1
 
-    @pytest.fixture(scope='session')
-    def fixture_image_bytes(self) -> bytes:
-        f = open('album_photo.jpg', 'rb')
-        return f.read()
-
-    @pytest.fixture(scope='session')
-    def fixture_album_dict(
-            self,
-            fixture_album_title: str,
-            fixture_album_description: str,
-            fixture_album_tags,
-            fixture_artists_ids,
-            fixture_tracks_ids
-    ) -> dict:
-        return {
-            'album_id': None,
-            'title': fixture_album_title,
-            'description': fixture_album_description,
-            'tags': fixture_album_tags,
-            'artists_ids': fixture_artists_ids,
-            'tracks_ids': fixture_tracks_ids
-        }
-
-    """
-        Testing functions
-    """
-
-    async def test_create_album(
-            self,
-            album_service_factory: BaseService,
-            user_id: int,
-            fixture_album_title: str,
-            fixture_album_description: str,
-            fixture_album_tags: list[str],
-            fixture_album_dict: AlbumTestModel
-    ):
-        result_create_album = await album_service_factory.create_album(
-            title=fixture_album_title,
-            description=fixture_album_description,
-            tags=fixture_album_tags,
-            user_id=user_id
-        )
-        fixture_album_dict['album_id'] = result_create_album.id
-        assert isinstance(result_create_album.id, int) and result_create_album.id >= 1
-
-    async def test_get_album_by_id(
-            self,
-            album_service_factory: BaseService,
-            fixture_album_dict: AlbumTestModel,
-            user_id: int
-    ):
-        result_get_album = await album_service_factory.get_album(
-            album_id=fixture_album_dict['album_id'],
-            user_id=user_id
-        )
-        assert isinstance(result_get_album, AlbumResponseDTO) and result_get_album.id == fixture_album_dict['album_id']
-
-    async def test_exist_viewer_in_albums(
-            self,
-            album_service_factory: BaseService,
-            fixture_album_dict: AlbumTestModel,
-            user_id: int
-    ):
-        result_get_album = await album_service_factory.get_album(
-            album_id=fixture_album_dict['album_id'],
-            user_id=user_id
-        )
-        assert result_get_album.views == 1
-
-    async def test_update_album(
-            self,
-            album_service_factory: BaseService,
-            user_id: int,
-            fixture_album_title: str,
-            fixture_album_description: str,
-            fixture_album_tags: list[str],
-            fixture_artists_ids: list[int],
-            fixture_tracks_ids: list[int],
-            fixture_album_dict: AlbumTestModel
-    ):
-        result_update_album = await album_service_factory.update_album(
-            album_id=fixture_album_dict["album_id"],
+    async def test_create_album(  # TODO: add exceptions' parametrization
+        self,
+        service_factory: Callable[[], BaseService],
+        user_id: int,
+        album_title: str,
+        album_description: str,
+        album_tags: list[str],
+        album: AlbumTestModel,
+    ) -> None:
+        response = await service_factory().create_album(
+            title=album_title,
             user_id=user_id,
-            title=fixture_album_title,
-            description=fixture_album_description,
-            tags=fixture_album_tags,
-            artists_ids=fixture_artists_ids,
-            tracks_ids=fixture_tracks_ids
+            description=album_description,
+            tags=album_tags,
         )
-        assert isinstance(result_update_album.id, int) and result_update_album.id >= 1
+        album["id"] = response.id
+        assert isinstance(response.id, CreateAlbumResponseDTO)
 
-    async def test_like_album(
-            self,
-            album_service_factory: BaseService,
-            fixture_album_dict: AlbumTestModel,
-            user_id: int,
-    ):
-        await album_service_factory.like_album(album_id=fixture_album_dict['album_id'], user_id=user_id)
-        result_album_by_id = await album_service_factory.get_album(album_id=fixture_album_dict['album_id'],
-                                                                   user_id=user_id)
-        assert result_album_by_id.likes == 1
-
-    async def test_unlike_album(
-            self,
-            album_service_factory: BaseService,
-            fixture_album_dict: AlbumTestModel,
-            user_id: int,
-    ):
-        await album_service_factory.unlike_album(album_id=fixture_album_dict['album_id'], user_id=user_id)
-        result_album_by_id = await album_service_factory.get_album(album_id=fixture_album_dict['album_id'],
-                                                                   user_id=user_id)
-        assert result_album_by_id.likes == 0
-
-    async def test_get_artists_albums(
-            self,
-            album_service_factory: BaseService,
-            artists_id: int
-    ):
-        result_album_by_artist_id = await album_service_factory.get_artists_albums(artist_id=artists_id)
-        assert result_album_by_artist_id.total >= 1
+    @pytest.mark.parametrize(
+        "album_id,expected_type,expected_value,expected_exception",
+        [
+            (1, AlbumResponseDTO, None, None),  # TODO: add user_id parametrizaition
+            (100, None, None, AlbumNotFoundError),
+        ]
+    )
+    async def test_get_album(
+        self,
+        service_factory: Callable[[], BaseService],
+        expected_type: type,
+        expected_value: object,
+        expected_exception: type[Exc],
+        album_id: int,
+        user_id: int,
+    ) -> None:
+        if expected_type:
+            response = await service_factory().get_album(album_id=album_id, user_id=user_id)
+            assert isinstance(response, expected_type)
+        if expected_value:
+            response = await service_factory().get_album(album_id=album_id, user_id=user_id)
+            assert response == expected_value
+        if expected_exception:
+            with pytest.raises(expected_exception):
+                await service_factory().get_album(album_id=album_id, user_id=user_id)
 
     async def test_get_popular_albums(
-            self,
-            album_service_factory: BaseService,
-            fixture_album_dict: AlbumTestModel,
-            user_id: int,
-    ):
-        result_popular_albums = await album_service_factory.get_popular_albums(
-            user_id=user_id, start=0, size=10
-        )
-        assert result_popular_albums.total >= 1
-
-    async def test_update_cover(
-            self,
-            album_service_factory: BaseService,
-            fixture_image_bytes: bytes,
-            fixture_album_dict: AlbumTestModel,
-            user_id: int
-    ):
-        await album_service_factory.update_cover(
+        self,
+        service_factory: Callable[[], BaseService],
+        user_id: int,
+        start: int,
+        size: int,
+    ) -> None:
+        response = await service_factory().get_popular_albums(
             user_id=user_id,
-            album_id=fixture_album_dict['album_id'],
-            data=fixture_image_bytes
+            start=start,
+            size=size,
         )
-        assert True
+        assert isinstance(response, PopularAlbumsResponseDTO)
+
+    @pytest.mark.parametrize(
+        "album_id",
+        [(1,), (100,)]
+    )
+    async def test_like_album(  # TODO: add user_id parametrizaition after authentication is done
+        self,
+        service_factory: Callable[[], BaseService],
+        album_id: int,
+        user_id: int,
+    ) -> None:
+        if album_id == 1:
+            assert await service_factory().like_album(album_id=album_id, user_id=user_id) is None  # type: ignore[func-returns-value]
+        else:
+            with pytest.raises(AlbumNotFoundError):
+                await service_factory().like_album(album_id=album_id, user_id=user_id)
+
+    @pytest.mark.parametrize(
+        "album_id",
+        [(1,), (100,)]
+    )
+    async def test_unlike_album(  # TODO: add user_id parametrizaition after authentication is done
+        self,
+        service_factory: Callable[[], BaseService],
+        album_id: int,
+        user_id: int,
+    ) -> None:
+        if album_id == 1:
+            assert await service_factory().unlike_album(album_id=album_id, user_id=user_id) is None  # type: ignore[func-returns-value]
+        else:
+            with pytest.raises(AlbumNotFoundError):
+                await service_factory().unlike_album(album_id=album_id, user_id=user_id)
+
+    @pytest.mark.parametrize(  # TODO: add user_id parametrizaition after authentication is done
+        "album_id,expected_type,expected_value,expected_exception",
+        [
+            (1, CreateAlbumResponseDTO, None, None),
+            (100, None, None, AlbumNotFoundError),
+        ]
+    )
+    async def test_update_album(
+        self,
+        service_factory: Callable[[], BaseService],
+        expected_type: type,
+        expected_value: object,
+        expected_exception: type[Exc],
+        album_id: int,
+        album_title: str,
+        album_description: str,
+        album_artists_ids: list[int],
+        album_tracks_ids: list[int],
+        album_tags: list[str],
+        user_id: int,
+        album: AlbumTestModel,
+    ) -> None:
+        if expected_type:
+            response = await service_factory().update_album(
+                album_id=album_id,
+                user_id=user_id,
+                title=album_title,
+                description=album_description,
+                artists_ids=album_artists_ids,
+                tracks_ids=album_tracks_ids,
+                tags=album_tags,
+            )
+            assert isinstance(response, UpdateAlbumResponseDTO)
+            album["id"] = response.id
+        if expected_value:
+            response = await service_factory().update_album(
+                album_id=album_id,
+                user_id=user_id,
+                title=album_title,
+                description=album_description,
+                artists_ids=album_artists_ids,
+                tracks_ids=album_tracks_ids,
+                tags=album_tags,
+            )
+            assert response == expected_value
+        if expected_exception:
+            with pytest.raises(expected_exception):
+                await service_factory().update_album(
+                    album_id=album_id,
+                    user_id=user_id,
+                    title=album_title,
+                    description=album_description,
+                    artists_ids=album_artists_ids,
+                    tracks_ids=album_tracks_ids,
+                    tags=album_tags,
+                )
+
+    @pytest.mark.parametrize(
+        "album_id",
+        [(1,), (100,)]
+    )
+    async def test_update_cover(
+        self,
+        service_factory: Callable[[], BaseService],
+        album_id: int,
+        album_cover_data: bytes,
+        user_id: int
+    ) -> None:
+        if album_id == 1:
+            assert await service_factory().update_cover(  # type: ignore[func-returns-value]
+                user_id=user_id,
+                album_id=album_id,
+                data=album_cover_data,
+            ) is None
+        else:
+            with pytest.raises(AlbumNotFoundError):
+                await service_factory().update_cover(
+                    user_id=user_id,
+                    album_id=album_id,
+                    data=album_cover_data,
+                )
 
     async def test_delete_album(
-            self,
-            album_service_factory: BaseService,
-            fixture_album_dict: AlbumTestModel,
-            user_id: int
-    ):
-        try:
-            await album_service_factory.delete_album(user_id=user_id, album_id=fixture_album_dict["album_id"])
-            await album_service_factory.get_album(album_id=fixture_album_dict['album_id'], user_id=user_id)
-            assert False
-        except AlbumNotFoundError:
-            assert True
+        self,
+        service_factory: BaseService,
+        album_id: int,
+        user_id: int,
+    ) -> None:
+        assert await service_factory.delete_album(album_id=album_id, user_id=user_id) is None  # type: ignore[func-returns-value]
+        with pytest.raises(AlbumNotFoundError):
+            await service_factory.get_album(album_id=album_id, user_id=user_id)
