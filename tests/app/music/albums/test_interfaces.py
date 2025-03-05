@@ -2,9 +2,11 @@ from datetime import date, datetime
 from typing import Literal, Callable
 
 import pytest
+
 from src.app.music.albums.interfaces.da.dao import PostgresDAOImplementation, get_postgres_dao_implementation
 from src.app.music.albums.interfaces.da.models import Album
 from src.app.music.albums.interfaces.ma.mao import S3MAOImplementation, get_s3_mao_implementation
+from tests.app.music.albums.fixtures import AlbumTestModel, album  # noqa: F401
 
 
 class TestPostgresDAOImplementation:
@@ -13,85 +15,68 @@ class TestPostgresDAOImplementation:
         return get_postgres_dao_implementation
 
     @pytest.fixture(scope="function")
-    def album_id(self, album: dict) -> int:
+    def album_id(self, album: AlbumTestModel) -> int:
         return album['id']
 
     @pytest.fixture(scope="function")
-    def album_title(self, album: dict) -> str:
+    def album_title(self, album: AlbumTestModel) -> str:
         return album["title"]
 
-    @pytest.fixture(scope="class")
-    def album_type(self, album: dict) -> Literal["album", "single"]:
+    @pytest.fixture(scope="function")
+    def album_type(self, album: AlbumTestModel) -> Literal["album", "single"]:
         return album["type"]
 
-    @pytest.fixture(scope="class")
-    def album_created_at(self, album: dict) -> date:
+    @pytest.fixture(scope="function")
+    def album_created_at(self, album: AlbumTestModel) -> date:
         return album["created_at"]
 
-    @pytest.fixture(scope="class")
-    def album_updated_at(self, album: dict) -> datetime:
+    @pytest.fixture(scope="function")
+    def album_updated_at(self, album: AlbumTestModel) -> datetime:
         return album["updated_at"]
 
-    @pytest.fixture(scope="class")
-    def album_viewers_ids(self, album: dict) -> list[int]:
+    @pytest.fixture(scope="function")
+    def album_viewers_ids(self, album: AlbumTestModel) -> list[int]:
         return album["viewers_ids"]
 
-    @pytest.fixture(scope="class")
-    def album_likers_ids(self, album: dict) -> list[int]:
+    @pytest.fixture(scope="function")
+    def album_likers_ids(self, album: AlbumTestModel) -> list[int]:
         return album["likers_ids"]
 
-    @pytest.fixture(scope="class")
-    def album_artists_ids(self, album: dict) -> list[int]:
+    @pytest.fixture(scope="function")
+    def album_artists_ids(self, album: AlbumTestModel) -> list[int]:
         return album["artists_ids"]
 
-    @pytest.fixture(scope="class")
-    def album_tracks_ids(self, album: dict) -> list[int]:
+    @pytest.fixture(scope="function")
+    def album_tracks_ids(self, album: AlbumTestModel) -> list[int]:
         return album["tracks_ids"]
 
-    @pytest.fixture(scope="class")
-    def album_tags(self, album: dict) -> list[str]:
+    @pytest.fixture(scope="function")
+    def album_tags(self, album: AlbumTestModel) -> list[str]:
         return album["tags"]
 
-    @pytest.fixture(scope="class")
-    def album_artist_id(self, album: dict) -> int:
+    @pytest.fixture(scope="function")
+    def artist_id(self) -> int:
         return 1
 
-    @pytest.fixture(scope="class")
-    def album_picture_url(self, album: dict) -> str:
+    @pytest.fixture(scope="function")
+    def album_picture_url(self, album: AlbumTestModel) -> str | None:
         return album["picture_url"]
 
-    @pytest.fixture(scope="class")
-    def album_description(self, album: dict) -> str:
+    @pytest.fixture(scope="function")
+    def album_description(self, album: AlbumTestModel) -> str | None:
         return album["description"]
 
-    @pytest.fixture(scope="class")
-    def album_start(self, album: dict) -> int:
+    @pytest.fixture(scope="function")
+    def start(self, album: AlbumTestModel) -> int:
         return 1
 
-    @pytest.fixture(scope="class")
-    def album_size(self, album: dict) -> int:
+    @pytest.fixture(scope="function")
+    def size(self, album: AlbumTestModel) -> int:
         return 1
 
-    @pytest.fixture(scope="class")
-    def album_user_id(self, album: dict) -> int:
+    @pytest.fixture(scope="function")
+    def user_id(self, album: AlbumTestModel) -> int:
         return 1
-
-    @pytest.fixture(scope="class")
-    def album(self) -> dict:
-        return {
-            "id": 1,
-            "title": "title",
-            "description": "description",
-            "picture_url": "ftp://picture.png",
-            "type": "single",
-            "created_at": date.today(),
-            "updated_at": datetime.now(),
-            "viewers_ids": [1],  # [user["id"]]
-            "likers_ids": [1],  # [user["id"]]
-            "artists_ids": [1],  # [artist["id"]]
-            "tracks_ids": [1],  # [track["id"]]
-            "tags": ["tag"],
-        }
 
     async def test_create_album(
         self,
@@ -107,7 +92,7 @@ class TestPostgresDAOImplementation:
         album_tracks_ids: list[int],
         album_tags: list[str],
         dao_impl_factory: Callable[[], PostgresDAOImplementation],
-        album: dict,
+        album: AlbumTestModel,
     ) -> None:
         async with dao_impl_factory() as dao_impl:
             response = await dao_impl.create_album(
@@ -129,7 +114,7 @@ class TestPostgresDAOImplementation:
 
     async def test_get_album_by_id(
         self,
-        album: dict,
+        album: AlbumTestModel,
         dao_impl_factory: Callable[[], PostgresDAOImplementation],
     ) -> None:
         async with dao_impl_factory() as dao_impl:
@@ -138,22 +123,22 @@ class TestPostgresDAOImplementation:
 
     async def test_get_album_existance_by_title(
         self,
-        album_artist_id: int,
+        artist_id: int,
         album_title: str,
         dao_impl_factory: Callable[[], PostgresDAOImplementation],
     ) -> None:
         async with dao_impl_factory() as dao_impl:
-            response = await dao_impl.get_album_existance_by_title(artist_id=album_artist_id, title=album_title)
+            response = await dao_impl.get_album_existance_by_title(artist_id=artist_id, title=album_title)
         assert isinstance(response, bool)
 
-    async def test_get_album_existance_by_id(self, album: dict, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
+    async def test_get_album_existance_by_id(self, album: AlbumTestModel, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
         async with dao_impl_factory() as dao_impl:
             response = await dao_impl.get_album_existance_by_id(album_id=album["id"])
         assert isinstance(response, bool)
 
-    async def test_get_popular_albums(self, album_start: int, album_size: int, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
+    async def test_get_popular_albums(self, start: int, size: int, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
         async with dao_impl_factory() as dao_impl:
-            response = await dao_impl.get_popular_albums(start=album_start, size=album_size)
+            response = await dao_impl.get_popular_albums(start=start, size=size)
         assert isinstance(response, list)
 
     async def test_count_albums(self, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
@@ -162,15 +147,15 @@ class TestPostgresDAOImplementation:
         assert isinstance(response, int)
         assert response >= 0
 
-    async def test_get_artist_id_by_user_id(self, album_user_id: int, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
+    async def test_get_artist_id_by_user_id(self, user_id: int, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
         async with dao_impl_factory() as dao_impl:
-            response = await dao_impl.get_artist_id_by_user_id(user_id=album_user_id)
+            response = await dao_impl.get_artist_id_by_user_id(user_id=user_id)
         assert isinstance(response, int)
         assert response >= 1
 
     async def test_update_album(
         self,
-        album: dict,
+        album: AlbumTestModel,
         dao_impl_factory: Callable[[], PostgresDAOImplementation],
         album_title: str | None,
         album_picture_url: str | None,
@@ -203,7 +188,7 @@ class TestPostgresDAOImplementation:
         assert response >= 1
         album["id"] = response
 
-    async def test_delete_album(self, album: dict, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
+    async def test_delete_album(self, album: AlbumTestModel, dao_impl_factory: Callable[[], PostgresDAOImplementation]) -> None:
         async with dao_impl_factory() as dao_impl:
             response = await dao_impl.delete_album(album_id=album["id"])  # type: ignore[func-returns-value]
         assert response is None
