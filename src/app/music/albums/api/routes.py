@@ -132,7 +132,7 @@ class Router(BaseRouter):
     @staticmethod
     @router_v1.get(
         path="/{album_id}",
-        summary="Get an album by it\'s id",
+        summary="Get an album by it's id",
         responses={
             status.HTTP_200_OK: {"model": SAlbumResponse},
             status.HTTP_404_NOT_FOUND: {"content": {"application/json": examples()[AlbumNotFoundError]}},

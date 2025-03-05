@@ -1,7 +1,6 @@
 from types import TracebackType
 
 from fastapi import HTTPException
-
 from src.infrastructure.exceptions import Exc
 
 
