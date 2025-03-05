@@ -1,13 +1,15 @@
-FROM python:3.11.10
+FROM ghcr.io/astral-sh/uv:python3.11-bookworm
 
-COPY . /backend
 WORKDIR /backend
 
-ENV PYTHONDONTWRITEBYCODE 1
-ENV PYTHONUNBUFFERED 1
+ENV UV_COMPILE_BYTECODE 0
+ENV UV_LINK_MODE=copy
 
-RUN pip install --upgrade pip
-RUN pip install poetry
-RUN poetry install
+RUN uv venv --python 3.11.11
+ADD . /backend
+
+ENV PATH="/app/.venv/bin:$PATH"
+
+ENTRYPOINT []
 
 CMD ["make", "test-local"]

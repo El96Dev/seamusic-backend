@@ -14,7 +14,7 @@ services:
     volumes:
       - ./db:/var/lib/postgresql/data
     networks:
-      - backend
+      - sm_backend
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${DB_USER}']
       interval: 10s
@@ -36,20 +36,20 @@ services:
     volumes:
       - ./:/backend/
     networks:
-      - backend
+      - sm_backend
 
 
   pgadmin:
-    container_name: pgadmin_app
+    container_name: pgadmin
     image: dpage/pgadmin4
     environment:
-      PGADMIN_DEFAULT_EMAIL: 'defaultemail@mail.ru'
-      PGADMIN_DEFAULT_PASSWORD: '12345678'
+      PGADMIN_DEFAULT_EMAIL: 'user@example.com'
+      PGADMIN_DEFAULT_PASSWORD: 'qwerty'
     ports:
       - "5050:80"
     networks:
-      - backend
+      - sm_backend
 
 networks:
-  backend:
+  sm_backend:
     driver: "bridge"

@@ -1,44 +1,47 @@
 install:
-	poetry install
+	sudo rm -rf .venv
+	uv venv --python 3.11.11
+	uv sync
 
 run-local:
-	poetry run alembic upgrade head
-	poetry run uvicorn src.api.app:app --host 0.0.0.0 --port 8000 --reload --reload-dir . --log-config=log_config.ini --log-level=debug
+	uv run alembic upgrade head
+	uv run uvicorn src.app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir . --log-config=log_config.ini --log-level=debug
 
 build:
-	poetry run docker-compose -f docker-compose.$(for).yml build
+	uv run docker-compose -f docker-compose.$(for).yml build
 
 start:
-	poetry run docker-compose -f docker-compose.$(for).yml up --force-recreate --remove-orphans
+	uv run docker-compose -f docker-compose.$(for).yml up --force-recreate --remove-orphans
 
 up:
-	poetry run docker-compose -f docker-compose.$(for).yml up --force-recreate --remove-orphans -d
+	uv run docker-compose -f docker-compose.$(for).yml up --force-recreate --remove-orphans -d
 
 stop:
-	poetry run docker-compose -f docker-compose.$(for).yml stop
+	uv run docker-compose -f docker-compose.$(for).yml stop
 
 rm:
-	poetry run docker-compose -f docker-compose.$(for).yml rm
 	sudo rm -rf db
+	uv run docker-compose -f docker-compose.$(for).yml rm
 
 revision:
-	poetry run alembic revision --autogenerate -m $(name)
+	uv run docker run app /bin/bash -c "uv run alembic revision --autogenerate"
 
 upgrade:
-	poetry run alembic upgrade $(revision)
+	uv run docker run app /bin/bash -c "uv run alembic upgrade $(revision)"
 
 downgrade:
-	poetry run alembic downgrade $(revision)
+	uv run docker run app /bin/bash -c "uv run alembic downgrade $(revision)"
 
 test:
-	poetry run docker-compose -f docker-compose.test.yml up --force-recreate --remove-orphans -d
-	poetry run docker-compose stop
+	uv run docker-compose -f docker-compose.test.yml up --build --force-recreate --remove-orphans --abort-on-container-exit
 
 test-local:
-	poetry run alembic upgrade head
-	poetry run pytest
+	uv run alembic upgrade head
+	uv run pytest -s --verbose
 
 lint:
-	poetry run flake8
-	poetry run mypy -p src --cache-dir=/dev/null --config-file=pyproject.toml
-	poetry run mypy -p tests --cache-dir=/dev/null --config-file=pyproject.toml
+	uv run flake8
+	uv run mypy -p src --cache-dir=/dev/null --config-file=pyproject.toml
+	uv run mypy -p tests --cache-dir=/dev/null --config-file=pyproject.toml
+	uv run mypy -m migrations.env --cache-dir=/dev/null --config-file=pyproject.toml
+	uv run mypy -m migrations.models --cache-dir=/dev/null --config-file=pyproject.toml

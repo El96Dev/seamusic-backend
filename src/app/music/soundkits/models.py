@@ -1,0 +1,61 @@
+from datetime import date, datetime
+
+from sqlalchemy import Column, Table, ForeignKey, Integer
+from sqlalchemy.orm import Mapped, relationship, mapped_column
+
+from src.app.social.tags.models import Tag
+from src.infrastructure.postgres import Base, IntArray
+
+tag_to_soundkits_association = Table(
+    "tag_to_soundkits_association",
+    Base.metadata,
+    Column("soundkit_id", Integer, ForeignKey("soundkits.id"), primary_key=True),
+    Column("tag_id", ForeignKey("tags.id"), primary_key=True),
+)
+
+producers_to_soundkits_association = Table(
+    "producers_to_soundkits_association",
+    Base.metadata,
+    Column("soundkit_id", Integer, ForeignKey("soundkits.id"), primary_key=True),
+    Column("producer_id", Integer, ForeignKey("producer_profiles.id"), primary_key=True),
+)
+
+beat_to_soundkits_association = Table(
+    "beat_to_soundkits_association",
+    Base.metadata,
+    Column("soundkit_id", Integer, ForeignKey("soundkits.id"), primary_key=True),
+    Column("beat_id", ForeignKey("beats.id"), primary_key=True),
+)
+
+
+class Soundkit(Base):
+    __tablename__ = "soundkits"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    title: Mapped[str]
+    description: Mapped[str | None]
+    picture_url: Mapped[str | None]
+    file_url: Mapped[str]
+
+    viewers_ids: Mapped[IntArray]
+    likers_ids: Mapped[IntArray]
+
+    created_at: Mapped[date]
+    updated_at: Mapped[datetime]
+
+    producers: Mapped[list["ProducerProfile"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="ProducerProfile",
+        secondary=producers_to_soundkits_association,
+        back_populates="soundkits",
+        lazy="selectin",
+    )
+    beats: Mapped[list["Beat"]] = relationship(  # type: ignore[name-defined]  # noqa: F821
+        argument="Beat",
+        secondary=beat_to_soundkits_association,
+        lazy="selectin",
+    )
+    tags: Mapped[list[Tag]] = relationship(
+        argument="Tag",
+        secondary=tag_to_soundkits_association,
+        lazy="selectin",
+    )
