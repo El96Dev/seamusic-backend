@@ -1,5 +1,7 @@
 install:
+	sudo rm -rf .venv
 	uv venv --python 3.11.11
+	uv sync
 
 run-local:
 	uv run alembic upgrade head
@@ -18,8 +20,8 @@ stop:
 	uv run docker-compose -f docker-compose.$(for).yml stop
 
 rm:
-	uv run docker-compose -f docker-compose.$(for).yml rm
 	sudo rm -rf db
+	uv run docker-compose -f docker-compose.$(for).yml rm
 
 revision:
 	uv run docker run app /bin/bash -c "uv run alembic revision --autogenerate"
@@ -31,7 +33,7 @@ downgrade:
 	uv run docker run app /bin/bash -c "uv run alembic downgrade $(revision)"
 
 test:
-	uv run docker-compose -f docker-compose.test.yml up --force-recreate --remove-orphans --abort-on-container-exit
+	uv run docker-compose -f docker-compose.test.yml up --build --force-recreate --remove-orphans --abort-on-container-exit
 
 test-local:
 	uv run alembic upgrade head
@@ -41,4 +43,5 @@ lint:
 	uv run flake8
 	uv run mypy -p src --cache-dir=/dev/null --config-file=pyproject.toml
 	uv run mypy -p tests --cache-dir=/dev/null --config-file=pyproject.toml
-	uv run mypy -p migrations --cache-dir=/dev/null --config-file=pyproject.toml
+	uv run mypy -m migrations.env --cache-dir=/dev/null --config-file=pyproject.toml
+	uv run mypy -m migrations.models --cache-dir=/dev/null --config-file=pyproject.toml

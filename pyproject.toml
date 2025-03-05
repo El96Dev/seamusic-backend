@@ -28,7 +28,7 @@ dependencies = [
     "python-multipart >= 0.0.12",
     "redis >= 5.0.8",
     "requests >= 2.32.3",
-    "sqlalchemy >= 2.0.32",
+    "sqlalchemy==2.0.38",
     "types-requests >= 2.32.0.20240712",
     "uvicorn >= 0.30.6",
 ]
@@ -53,7 +53,7 @@ dev-dependencies = [
 
 [tool.flake8]
 max-line-length = 200
-ignore = ["E731"]
+ignore = ["E731", "F811"]
 exclude =[
     ".git/",
     ".venv/",

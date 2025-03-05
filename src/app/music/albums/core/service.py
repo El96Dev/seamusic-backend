@@ -16,24 +16,25 @@ from src.app.music.albums.core.dtos import (
     UpdateAlbumRequestDTO,
     UpdateAlbumResponseDTO,
     PopularAlbumsRequestDTO,
-    ArtistAlbumsRequestDTO,
-    ArtistAlbumsResponseDTO,
     LikeAlbumRequestDTO,
     UnlikeAlbumRequestDTO,
     UpdateAlbumCoverRequestDTO,
+    get_items_response,
 )
 from src.app.music.albums.interfaces.da.dao import get_postgres_dao_implementation
 from src.app.music.albums.interfaces.ma.mao import get_s3_mao_implementation
 from src.domain.music.albums.core.exceptions import (
     AlbumNotFoundError,
     AlbumAlreasyExistsError,
-    NoArtistRightsError,
-    ArtistNotFoundError,
+    NoArtistProfileError,
+    AlbumNotLikedError,
+    AlbumAlreadyLikedError,
+    NoRightsError,
 )
 from src.domain.music.albums.core.service import BaseService
 from src.domain.music.albums.interfaces.da.dao import DAO
 from src.domain.music.albums.interfaces.ma.mao import MAO
-from src.infrastructure.pages import get_page, get_has_next, get_has_previous
+from src.infrastructure.loggers import app as logger
 
 
 @dataclass
@@ -42,6 +43,7 @@ class Service(BaseService):
     mao_impl_factory: Callable[[], MAO]
 
     async def get_album(self, album_id: int, user_id: int) -> AlbumResponseDTO:
+        logger.info("get_album service request")
         request = AlbumRequestDTO(album_id=album_id, user_id=user_id)
         async with self.dao_impl_factory() as session:
             response = await session.get_album_by_id(album_id=request.album_id)
@@ -85,6 +87,7 @@ class Service(BaseService):
         )
 
     async def get_popular_albums(self, user_id: int, start: int, size: int) -> PopularAlbumsResponseDTO:
+        logger.info("get_popular_albums service request")
         request = PopularAlbumsRequestDTO(user_id=user_id)
         page = ItemsRequestDTO(start=start, size=size)
         async with self.dao_impl_factory() as session:
@@ -97,12 +100,11 @@ class Service(BaseService):
                     viewers_ids.append(request.user_id)
                     await session.update_album(album_id=item.id, viewers_ids=viewers_ids)
 
-        return PopularAlbumsResponseDTO(
+        return get_items_response(
             total=total,
-            page=get_page(start=page.start, size=page.size),
-            has_next=get_has_next(total=total, start=page.start, size=page.size),
-            has_previous=get_has_previous(start=page.start, size=page.size),
-            size=page.size,
+            start=start,
+            size=size,
+            response_dto=PopularAlbumsResponseDTO,
             items=list(map(lambda album: AlbumItemResponseDTO(
                 id=album.id,
                 title=album.title,
@@ -116,36 +118,8 @@ class Service(BaseService):
             ), items)),
         )
 
-    async def get_artists_albums(self, artist_id: int) -> ArtistAlbumsResponseDTO:
-        request = ArtistAlbumsRequestDTO(artist_id=artist_id)
-        async with self.dao_impl_factory() as session:
-            artists_exists = await session.get_artist_existance_by_id(artist_id=request.artist_id)
-            if artists_exists:
-                items = await session.get_artist_albums(artist_id=request.artist_id)
-                total = await session.count_artist_albums(artist_id=request.artist_id)
-
-        if not artists_exists:
-            raise ArtistNotFoundError()
-
-        return ArtistAlbumsResponseDTO(
-            total=total,
-            items=list(map(
-                lambda album: AlbumItemResponseDTO(
-                    id=album.id,
-                    title=album.title,
-                    picture_url=album.picture_url,
-                    description=album.description,
-                    views=len(album.viewers_ids),
-                    likes=len(album.likers_ids),
-                    type=album.type,
-                    created_at=album.created_at,
-                    updated_at=album.updated_at,
-                ),
-                items,
-            )),
-        )
-
     async def like_album(self, album_id: int, user_id: int) -> None:
+        logger.info("like_album service request")
         request = LikeAlbumRequestDTO(album_id=album_id, user_id=user_id)
         async with self.dao_impl_factory() as session:
             album = await session.get_album_by_id(album_id=request.album_id)
@@ -157,8 +131,11 @@ class Service(BaseService):
 
         if not album_exists:
             raise AlbumNotFoundError()
+        if request.user_id in album.likers_ids:  # type: ignore[union-attr]
+            raise AlbumAlreadyLikedError("Album is already liked")
 
     async def unlike_album(self, album_id: int, user_id: int) -> None:
+        logger.info("unlike_album service request")
         request = UnlikeAlbumRequestDTO(album_id=album_id, user_id=user_id)
         async with self.dao_impl_factory() as session:
             album = await session.get_album_by_id(album_id=request.album_id)
@@ -170,22 +147,31 @@ class Service(BaseService):
 
         if not album_exists:
             raise AlbumNotFoundError()
+        if request.user_id not in album.likers_ids:  # type: ignore[union-attr]
+            raise AlbumNotLikedError("Album is not liked yet")
 
     async def update_cover(self, album_id: int, user_id: int, data: bytes) -> None:
+        logger.info("update_cover service request")
         request = UpdateAlbumCoverRequestDTO(album_id=album_id, user_id=user_id, data=data)
         async with self.dao_impl_factory() as dao_session:
             artist_id = await dao_session.get_artist_id_by_user_id(user_id=request.user_id)
             album = await dao_session.get_album_by_id(album_id=request.album_id)
-            artist_exists = bool(artist_id)
-            album_artist_ids = list(map(lambda artist: artist.id, album.artists))  # type: ignore[union-attr]
-            artists_rights = artist_id in album_artist_ids
-            if artist_exists and artists_rights:
-                async with self.mao_impl_factory() as mao_session:
-                    cover_url = await mao_session.update_cover(data=request.data, album_id=request.album_id)
-                await dao_session.update_album(album_id=request.album_id, picture_url=cover_url)
+            album_exists = bool(album)
+            if album_exists:
+                artist_exists = bool(artist_id)
+                album_artist_ids = list(map(lambda artist: artist.id, album.artists))  # type: ignore[union-attr]
+                artists_rights = artist_id in album_artist_ids
+                if artist_exists and artists_rights:
+                    async with self.mao_impl_factory() as mao_session:
+                        cover_url = await mao_session.update_cover(data=request.data, album_id=request.album_id)
+                    await dao_session.update_album(album_id=request.album_id, picture_url=cover_url)
 
-        if not artist_exists or not artists_rights:
-            raise NoArtistRightsError()
+        if not album_exists:
+            raise AlbumNotFoundError()
+        if not artist_exists:
+            raise NoArtistProfileError()
+        if not not artists_rights:
+            raise NoRightsError()
 
     async def create_album(
         self,
@@ -194,6 +180,7 @@ class Service(BaseService):
         description: str | None,
         tags: list[str],
     ) -> CreateAlbumResponseDTO:
+        logger.info("create_album service request")
         request = CreateAlbumRequestDTO(title=title, user_id=user_id, description=description, tags=tags)
         async with self.dao_impl_factory() as session:
             artist_id = await session.get_artist_id_by_user_id(user_id=request.user_id)
@@ -205,7 +192,7 @@ class Service(BaseService):
                         title=request.title,
                         picture_url=None,
                         description=request.description,
-                        album_type='album',
+                        album_type="album",
                         created_at=date.today(),
                         updated_at=datetime.now(),
                         viewers_ids=list(),
@@ -216,7 +203,7 @@ class Service(BaseService):
                     )
 
         if not artist_exists:
-            raise NoArtistRightsError()
+            raise NoArtistProfileError()
         if album_exists:
             raise AlbumAlreasyExistsError()
 
@@ -232,6 +219,7 @@ class Service(BaseService):
         tracks_ids: list[int] | None = None,
         tags: list[str] | None = None,
     ) -> UpdateAlbumResponseDTO:
+        logger.info("update_album service request")
         request = UpdateAlbumRequestDTO(
             id=album_id,
             user_id=user_id,
@@ -253,7 +241,7 @@ class Service(BaseService):
                         title=request.title,
                         picture_url=request.picture_url,
                         description=request.description,
-                        album_type=None if not request.tracks_ids else 'single' if len(request.tracks_ids) == 1 else 'album',
+                        album_type=None if not request.tracks_ids else "single" if len(request.tracks_ids) == 1 else "album",
                         updated_at=datetime.now(),
                         created_at=None,
                         viewers_ids=None,
@@ -266,11 +254,12 @@ class Service(BaseService):
         if not album_exists:
             raise AlbumNotFoundError()
         if artist_id not in album_artists_ids:
-            raise NoArtistRightsError()
+            raise NoRightsError()
 
         return UpdateAlbumResponseDTO(id=album_id)
 
     async def delete_album(self, album_id: int, user_id: int) -> None:
+        logger.info("delete_album service request")
         request = DeleteAlbumRequestDTO(album_id=album_id, user_id=user_id)
         async with self.dao_impl_factory() as session:
             album = await session.get_album_by_id(album_id=request.album_id)
@@ -284,7 +273,7 @@ class Service(BaseService):
         if not album_exists:
             raise AlbumNotFoundError()
         if artist_id not in album_artists_ids:
-            raise NoArtistRightsError()
+            raise NoArtistProfileError()
 
 
 def get_service() -> Service:

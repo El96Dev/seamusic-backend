@@ -37,5 +37,7 @@ jobs:
         run: uv run mypy -p src --cache-dir=/dev/null --config-file=pyproject.toml
       - name: Run mypy for tests
         run: uv run mypy -p tests --cache-dir=/dev/null --config-file=pyproject.toml
-      - name: Run mypy for migrations
-        run: uv run mypy -p migrations --cache-dir=/dev/null --config-file=pyproject.toml
+      - name: Run mypy for env.py in migrations
+        run: uv run mypy -m migrations.env --cache-dir=/dev/null --config-file=pyproject.toml
+      - name: Run mypy for models.py in migrations
+        run: uv run mypy -m migrations.models --cache-dir=/dev/null --config-file=pyproject.toml

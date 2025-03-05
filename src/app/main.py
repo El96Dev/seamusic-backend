@@ -7,7 +7,6 @@ app = FastAPI(
     summary='Web app for music collaborations',
     version='0.1.0',
     root_path='/api/v1',
-    redoc_url='/docs',
-    docs_url='/swagger',
+    docs_url='/',
 )
 app.include_router(albums)
