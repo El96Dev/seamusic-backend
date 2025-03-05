@@ -86,3 +86,8 @@ filterwarnings = [
     "error",
     "ignore::UserWarning",
 ]
+
+[pytest]
+markers = [
+    "album", "album_service", "album_dao"
+]
