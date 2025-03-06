@@ -2,6 +2,10 @@ from datetime import date, datetime
 from typing import Literal
 
 
+AccessLevel = Literal["user", "admin", "superuser"]
+PremiumLevel = Literal["none", "bot", "full"]
+
+
 class BaseUserModel:
     id: int
     username: str
@@ -14,8 +18,8 @@ class BaseUserModel:
     updated_at: datetime
 
     telegram_id: int | None
-    access_level: Literal["user", "admin", "superuser"]
-    premium_level: Literal["none", "bot", "full"]
+    access_level: AccessLevel
+    premium_level: PremiumLevel
     is_verified: bool
 
     artist_id: int
