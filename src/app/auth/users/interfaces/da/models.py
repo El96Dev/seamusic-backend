@@ -35,23 +35,23 @@ saver_to_playlists_association = Table(
 class User(BaseUserModel, Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    username: Mapped[str]
-    description: Mapped[str | None]
-    email: Mapped[str]
-    password: Mapped[str]
-    picture_url: Mapped[str | None]
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)  # type: ignore[assignment]
+    username: Mapped[str]  # type: ignore[assignment]
+    description: Mapped[str | None]  # type: ignore[assignment]
+    email: Mapped[str]  # type: ignore[assignment]
+    password: Mapped[str]  # type: ignore[assignment]
+    picture_url: Mapped[str | None]  # type: ignore[assignment]
 
-    created_at: Mapped[date]
-    updated_at: Mapped[datetime]
+    created_at: Mapped[date]  # type: ignore[assignment]
+    updated_at: Mapped[datetime]  # type: ignore[assignment]
 
-    access_level: Mapped[str]
-    premium_level: Mapped[str]
-    telegram_id: Mapped[int | None]
-    is_verified: Mapped[bool]
+    access_level: Mapped[str]  # type: ignore[assignment]
+    premium_level: Mapped[str]  # type: ignore[assignment]
+    telegram_id: Mapped[int | None]  # type: ignore[assignment]
+    is_verified: Mapped[bool]  # type: ignore[assignment]
 
-    artist_id: Mapped[int] = mapped_column(ForeignKey("artist_profiles.id"))
-    producer_id: Mapped[int] = mapped_column(ForeignKey("producer_profiles.id"))
+    artist_id: Mapped[int] = mapped_column(ForeignKey("artist_profiles.id"))  # type: ignore[assignment]
+    producer_id: Mapped[int] = mapped_column(ForeignKey("producer_profiles.id"))  # type: ignore[assignment]
 
     artist_profile: Mapped[ArtistProfile] = relationship(
         argument="ArtistProfile",
@@ -67,47 +67,47 @@ class User(BaseUserModel, Base):
         single_parent=True,
         lazy="joined",
     )
-    licenses: Mapped[list[License]] = relationship(
+    licenses: Mapped[list[License]] = relationship(  # type: ignore[assignment]
         argument="License",
         secondary=author_to_licenses_association,
         back_populates="author",
         lazy="selectin",
     )
-    followed_squads: Mapped[list[Squad]] = relationship(
+    followed_squads: Mapped[list[Squad]] = relationship(  # type: ignore[assignment]
         argument="Squad",
         secondary=follower_to_squads_association,
         back_populates="followers",
         lazy="selectin",
     )
-    followed_artists: Mapped[list[ArtistProfile]] = relationship(
+    followed_artists: Mapped[list[ArtistProfile]] = relationship(  # type: ignore[assignment]
         argument="ArtistProfile",
         secondary=followers_to_artists_association,
         back_populates="followers",
         lazy="selectin",
     )
-    coauthored_playlists: Mapped[list[Playlist]] = relationship(
+    coauthored_playlists: Mapped[list[Playlist]] = relationship(  # type: ignore[assignment]
         argument="Playlist",
         secondary=author_to_playlists_association,
         back_populates="authors",
         lazy="selectin",
     )
-    saved_playlists: Mapped[list[Playlist]] = relationship(
+    saved_playlists: Mapped[list[Playlist]] = relationship(  # type: ignore[assignment]
         argument="Playlist",
         secondary=saver_to_playlists_association,
         lazy="selectin",
     )
-    followed_producers: Mapped[list[ProducerProfile]] = relationship(
+    followed_producers: Mapped[list[ProducerProfile]] = relationship(  # type: ignore[assignment]
         argument="ProducerProfile",
         secondary=followers_to_producers_association,
         back_populates="followers",
         lazy="selectin",
     )
-    saved_albums: Mapped[list[Album]] = relationship(
+    saved_albums: Mapped[list[Album]] = relationship(  # type: ignore[assignment]
         argument="Album",
         secondary=saver_to_albums_association,
         lazy="selectin",
     )
-    followed_tags: Mapped[list[Tag]] = relationship(
+    followed_tags: Mapped[list[Tag]] = relationship(  # type: ignore[assignment]
         argument="Tag",
         secondary=follower_to_tag_association,
         lazy="selectin",
