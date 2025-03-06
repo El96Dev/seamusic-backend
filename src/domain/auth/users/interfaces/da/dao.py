@@ -3,7 +3,7 @@ from datetime import date, datetime
 from typing import Self, Literal
 
 from src.domain.auth.users.interfaces.base import BaseInterface
-from src.domain.auth.users.interfaces.da.models import BaseUserModel
+from src.domain.auth.users.interfaces.da.models import BaseUserModel, AccessLevel, PremiumLevel
 
 
 class DAO(BaseInterface):
@@ -77,7 +77,19 @@ class DAO(BaseInterface):
         access_level: Literal["user", "admin", "superuser"],
         premium_level: Literal["none", "bot", "full"],
         is_verified: bool,
+        artist_id: int,
+        producer_id: int,
+        licenses_ids: list[int],
+        followed_squads_ids: list[int],
+        followed_artists_ids: list[int],
+        coauthored_playlists_ids: list[int],
+        saved_playlists_ids: list[int],
+        followed_producers_ids: list[int],
+        saved_albums_ids: list[int],
+        followed_tags_ids: list[int],
+        telegram_id: int | None = None,
         description: str | None = None,
+        picture_url: str | None = None,
     ) -> int:
         """
         Updates an existing user
@@ -91,6 +103,18 @@ class DAO(BaseInterface):
         :param access_level: level of rights
         :param premium_level: level of premium subscription
         :param is_verified: parameter that is `True` when email is confirmed
+        :param telegram_id: numeric primary identificator in telegram
+        :param picture_url: URL of a picture in media storage
+        :param artist_id: artist's numeric primary identificator
+        :param producer_id: producer's numeric primary identificator
+        :param licenses_ids: a list of  licenses' numeric primary identificators
+        :param followed_squads_ids: a list of followed squads' numeric primary identificators
+        :param followed_artists_ids: a list of followed artists' numeric primary identificators
+        :param coauthored_playlists_ids: a list of co-authored playlists' numeric primary identificators
+        :param saved_playlists_ids: a list of saved playlists' numeric primary identificators
+        :param followed_producers_ids: a list of followed producers' numeric primary identificators
+        :param saved_albums_ids: a list of saved albums' numeric primary identificators
+        :param followed_tags_ids: a list of followed tags' numeric primary identificators
         :return int: user's numeric primary identificator
         :raise NotImplementedError: when called directly by abstract class instance
         """
@@ -102,27 +126,51 @@ class DAO(BaseInterface):
         user_id: int,
         username: str | None = None,
         description: str | None = None,
+        email: str | None = None,
+        password: str | None = None,
         picture_url: str | None = None,
         created_at: date | None = None,
         updated_at: datetime | None = None,
-        access_level: Literal["user", "admin", "superuser"] | None = None,
-        premium_level: Literal["none", "bot", "full"] | None = None,
+        access_level: AccessLevel | None = None,
+        premium_level: PremiumLevel | None = None,
+        artist_id: int | None = None,
+        producer_id: int | None = None,
         telegram_id: int | None = None,
         is_verified: bool | None = None,
+        licenses_ids: list[int] | None = None,
+        followed_squads_ids: list[int] | None = None,
+        followed_artists_ids: list[int] | None = None,
+        coauthored_playlists_ids: list[int] | None = None,
+        saved_playlists_ids: list[int] | None = None,
+        followed_producers_ids: list[int] | None = None,
+        saved_albums_ids: list[int] | None = None,
+        followed_tags: list[str] | None = None,
     ) -> int:
         """
         Updates an existing user
 
         :param user_id: user's numeric primary identificator
         :param username: custom user's string identificator
+        :param email: user's email
+        :param password: user's password
         :param description: user profile's bio
         :param picture_url: URL of avatar in media storage
         :param created_at: date when account was created
         :param updated_at: date and time when profile was updated for the last time
         :param access_level: level of rights
         :param premium_level: level of premium subscription
+        :param artist_id: artist's numeric primary identificator
+        :param producer_id: producer's numeric primary identificator
         :param telegram_id: user's telegram identificator
         :param is_verified: parameter that is `True` when email is confirmed
+        :param licenses_ids: a list of  licenses' numeric primary identificators
+        :param followed_squads_ids: a list of followed squads' numeric primary identificators
+        :param followed_artists_ids: a list of followed artists' numeric primary identificators
+        :param coauthored_playlists_ids: a list of co-authored playlists' numeric primary identificators
+        :param saved_playlists_ids: a list of saved playlists' numeric primary identificators
+        :param followed_producers_ids: a list of followed producers' numeric primary identificators
+        :param saved_albums_ids: a list of saved albums' numeric primary identificators
+        :param followed_tags: a list of followed tags
         :return int: user's numeric primary identificator
         :raise NotImplementedError: when called directly by abstract class instance
         """
