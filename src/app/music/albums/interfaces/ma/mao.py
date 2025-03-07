@@ -1,12 +1,14 @@
+from dataclasses import dataclass
 from types import TracebackType
 from typing import Self
 
 from src.domain.music.albums.interfaces.ma.mao import MAO
 from src.infrastructure.loggers import app as logger
-from src.infrastructure.s3 import Session, unique_filename, get_file_stream
+from src.infrastructure.s3 import S3SessionMixin, unique_filename, get_file_stream
 
 
-class S3MAOImplementation(MAO, Session):
+@dataclass
+class S3MAOImplementation(MAO, S3SessionMixin):
     async def update_cover(self, data: bytes, album_id: int) -> str:
         logger.info("update_cover MAO request")
         cover_url = await self.update(
@@ -29,4 +31,7 @@ class S3MAOImplementation(MAO, Session):
 
 
 def get_s3_mao_implementation() -> S3MAOImplementation:
+    """
+    :return S3MAOImplementation: an instance of S3 interface session
+    """
     return S3MAOImplementation()
