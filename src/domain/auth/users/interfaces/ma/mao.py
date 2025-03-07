@@ -26,11 +26,11 @@ class MAO(BaseInterface):
     """
 
     @abstractmethod
-    async def update_profile_picture(self, data: bytes, album_id: int) -> str:
+    async def update_profile_picture(self, data: bytes, user_id: int) -> str:
         """
-        Changes album cover
+        Changes user's profile picture
 
-        :param album_id: album's numeric identificator
+        :param user_id: user's numeric identificator
         :param data: file data in bytes format
         :return: cover's URL
         :raise NotImplementedError: when called directly by abstract class instance
