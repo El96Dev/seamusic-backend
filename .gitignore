@@ -34,3 +34,6 @@ dmypy.json
 
 # Qodana
 qodana.yaml
+
+# JetClient
+.jetclient/
