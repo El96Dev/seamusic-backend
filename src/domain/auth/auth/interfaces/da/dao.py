@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from dataclasses import dataclass
 from datetime import date, datetime
+from types import TracebackType
 from typing import Self, Literal
 
 from src.domain.auth.auth.interfaces.base import BaseInterface
@@ -191,5 +192,10 @@ class DAO(BaseInterface):
     async def __aenter__(self) -> Self:
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore[no-untyped-def]
+    async def __aexit__(
+        self,
+        exc_type: type[Exception],
+        exc_val: Exception,
+        exc_tb: TracebackType,
+    ) -> None:  # type: ignore[no-untyped-def]
         pass

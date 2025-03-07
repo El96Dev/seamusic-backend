@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+from types import TracebackType
+from typing import Self
 
 from src.domain.auth.auth.interfaces.base import BaseInterface
 
@@ -23,11 +25,29 @@ class BaseEmailClient(BaseInterface):
     globals.
     """
 
-    async def send_email(self, template, **params) -> None:
+    async def send_email(
+        self,
+        receiver: str,
+        template: str,
+        **params: dict,
+    ) -> None:
         """
-        :param template:
-        :param params:
-        :raise NotImplementedError:
-        :raise SMTPConnectionError:
+        :param receiver: email adress of an email receiver
+        :param template: HTML-template (taken from presentation layer) name
+        :param params: parameters to insert into template
+        :raise SMTPConnectionError: when there is a problem with connection
+          beetwen the app and
+        :raise NotImplementedError: when called directly by abstract class instance
         """
         raise NotImplementedError
+
+    async def __aenter__(self) -> Self:
+        return self
+
+    async def __aexit__(
+            self,
+            exc_type: type[Exception],
+            exc_val: Exception,
+            exc_tb: TracebackType,
+    ) -> None:  # type: ignore[no-untyped-def]
+        pass
