@@ -5,19 +5,20 @@ from types import TracebackType
 from typing import Self
 from uuid import uuid4
 
-from boto3 import Session as Boto3Session, client as _client
+from boto3 import Session as Boto3Session, client as boto3client
 
 from src.infrastructure.config import settings
 
 
 @dataclass
-class Session:
-    session: Boto3Session = Boto3Session(
-        aws_access_key_id=settings.aws_access_key_id,
-        aws_secret_access_key=settings.aws_secret_access_key
-    )
-    client: _client = session.client(service_name='s3', endpoint_url='https://storage.yandexcloud.net')
-    bucket_name: str = settings.bucket_name
+class S3SessionMixin(Boto3Session):
+    def __init__(self) -> None:
+        super().__init__(
+            aws_access_key_id=settings.aws_access_key_id,
+            aws_secret_access_key=settings.aws_secret_access_key,
+        )
+        self.client: boto3client = self.client(service_name='s3', endpoint_url='https://storage.yandexcloud.net')
+        self.bucket_name: str = settings.bucket_name
 
     async def read(self, path: str, filename: str) -> str:
         return os.path.join('https://storage.yandexcloud.net/', self.bucket_name, path, filename)

@@ -18,7 +18,7 @@ from src.app.auth.producers.models import (  # noqa: F401
     producers_to_beatpacks_association,
     followers_to_producers_association,
 )
-from src.app.auth.users.models import (  # noqa: F401
+from src.app.auth.users.interfaces.da.models import (  # noqa: F401
     User,
     follower_to_tag_association,
     author_to_licenses_association,
