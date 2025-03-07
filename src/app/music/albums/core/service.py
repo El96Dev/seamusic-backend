@@ -103,7 +103,7 @@ class Service(BaseService):
         return get_items_response(
             total=total,
             start=start,
-            size=size,
+            size=len(items),
             response_dto=PopularAlbumsResponseDTO,
             items=list(map(lambda album: AlbumItemResponseDTO(
                 id=album.id,

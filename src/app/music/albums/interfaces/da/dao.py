@@ -1,10 +1,12 @@
 from dataclasses import dataclass
 from datetime import date, datetime
+from types import TracebackType
 from typing import Self, Literal
 
 from sqlalchemy import select, func
+
 from src.app.auth.artists.models import ArtistProfile
-from src.app.auth.users.models import User
+from src.app.auth.users.interfaces.da.models import User
 from src.app.music.albums.interfaces.da.models import Album
 from src.app.music.tracks.models import Track
 from src.app.social.tags.models import Tag
@@ -118,7 +120,12 @@ class PostgresDAOImplementation(PostgresSessionMixin, DAO):
     async def __aenter__(self) -> Self:
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore[no-untyped-def]
+    async def __aexit__(
+        self,
+        exc_type: type[Exception],
+        exc_val: Exception,
+        exc_tb: TracebackType,
+    ) -> None:
         await self.commit()
         await self.close()
 

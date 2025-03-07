@@ -54,7 +54,7 @@ class BaseService(ABC):
 
         :param user_id: user's numeric identificator
         :param start: start point where objects start being taken from storage.
-            Another words, this is just the beginning of the page
+          Another words, this is just the beginning of the page
         :param size: object's length
         :return: DTO with albums' sequence
         :raise NotImplementedError: when called directly by abstract class instance
@@ -71,7 +71,7 @@ class BaseService(ABC):
         :param data: file data in bytes format
         :raise NotImplementedError: when called directly by abstract class instance
         :raise NoArtistRightsError: when specified artist doesn't exist in storage
-            or the user is not the owner of that artist's profile
+          or the user is not the owner of that artist's profile
         """
         raise NotImplementedError
 
@@ -118,7 +118,7 @@ class BaseService(ABC):
         :raise NotImplementedError: when called directly by abstract class instance
         :raise NoArtistRightsError: when a user doesn't have an artist profile
         :raise AlbumAlreasyExistsError: when there's an existing album with same
-            title on an artist's page
+          title on an artist's page
         """
         raise NotImplementedError
 

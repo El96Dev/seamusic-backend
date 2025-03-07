@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import AsyncGenerator
 
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from src.app.music.albums.api.utils import CurrentUser, get_current_user
 from src.app.music.albums.core.service import get_service
 from src.domain.music.albums.api.routes import BaseRouter
@@ -18,7 +19,7 @@ from src.domain.music.albums.core.service import BaseService
 from src.infrastructure.api import ExceptionHandler
 from src.infrastructure.exceptions import Exc
 from src.infrastructure.loggers import app as logger
-from src.presentation.music.albums.schemas import (
+from src.presentation.schemas.music.albums import (
     SAlbumRequest,
     SAlbumResponse,
     SArtist,
