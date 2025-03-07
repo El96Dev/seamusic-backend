@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Self, Literal
 
-from src.domain.auth.users.interfaces.base import BaseInterface
+from src.domain.auth.auth.interfaces.base import BaseInterface
 from src.domain.auth.users.interfaces.da.models import BaseUserModel, AccessLevel, PremiumLevel
 
 
