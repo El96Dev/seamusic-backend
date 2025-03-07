@@ -36,7 +36,7 @@ class DAO(BaseInterface):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_user_by_username(self, username: int) -> BaseUserModel | None:
+    async def get_user_by_username(self, username: str) -> BaseUserModel | None:
         """
         Gets user by its identificator
 
@@ -86,7 +86,7 @@ class DAO(BaseInterface):
         saved_playlists_ids: list[int],
         followed_producers_ids: list[int],
         saved_albums_ids: list[int],
-        followed_tags_ids: list[int],
+        followed_tags: list[str],
         telegram_id: int | None = None,
         description: str | None = None,
         picture_url: str | None = None,
@@ -114,7 +114,7 @@ class DAO(BaseInterface):
         :param saved_playlists_ids: a list of saved playlists' numeric primary identificators
         :param followed_producers_ids: a list of followed producers' numeric primary identificators
         :param saved_albums_ids: a list of saved albums' numeric primary identificators
-        :param followed_tags_ids: a list of followed tags' numeric primary identificators
+        :param followed_tags: a list of followed tags
         :return int: user's numeric primary identificator
         :raise NotImplementedError: when called directly by abstract class instance
         """

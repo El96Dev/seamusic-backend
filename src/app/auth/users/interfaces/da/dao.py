@@ -30,7 +30,7 @@ class PostgresDAOImplementation(DAO, PostgresSessionMixin):
         response: User | None = await self.read(obj_id=user_id)
         return response
 
-    async def get_user_by_username(self, username: int) -> User | None:
+    async def get_user_by_username(self, username: str) -> User | None:
         logger.info("get_user_by_username DAO request")
         response: User | None = await self.run(
             statement=select(User).group_by(User.id).filter(User.username == username),
@@ -73,7 +73,7 @@ class PostgresDAOImplementation(DAO, PostgresSessionMixin):
         saved_playlists_ids: list[int],
         followed_producers_ids: list[int],
         saved_albums_ids: list[int],
-        followed_tags_ids: list[int],
+        followed_tags: list[str],
         telegram_id: int | None = None,
         description: str | None = None,
         picture_url: str | None = None,
@@ -130,9 +130,9 @@ class PostgresDAOImplementation(DAO, PostgresSessionMixin):
                 method="scalars",
             ) if saved_albums_ids else list(),
             followed_tags=await self.run(
-                statement=select(Tag).group_by(Tag.id).filter(Tag.id.in_(followed_tags_ids)),
+                statement=select(Tag).group_by(Tag.id).filter(Tag.name.in_(followed_tags)),
                 method="scalars",
-            ) if followed_tags_ids else list(),
+            ) if followed_tags else list(),
         )
         await self.create(user)
         return user.id
