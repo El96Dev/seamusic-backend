@@ -197,5 +197,5 @@ class DAO(BaseInterface):
         exc_type: type[Exception],
         exc_val: Exception,
         exc_tb: TracebackType,
-    ) -> None:  # type: ignore[no-untyped-def]
+    ) -> None:
         pass
