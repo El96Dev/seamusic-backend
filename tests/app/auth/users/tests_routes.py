@@ -7,7 +7,7 @@ from fastapi import status, UploadFile
 from fastapi.testclient import TestClient
 
 from src.app.music.albums.api.routes import Router, get_router
-from src.presentation.music.albums.schemas import (
+from src.presentation.schemas.music.albums import (
     SCreateAlbumRequest,
     SCreateAlbumResponse,
     SAlbumResponse,

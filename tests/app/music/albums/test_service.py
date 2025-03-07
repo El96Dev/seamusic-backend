@@ -90,9 +90,9 @@ class TestAlbumService:
     async def test_get_album(
         self,
         service_factory: Callable[[], BaseService],
-        expected_type: type,
-        expected_value: object,
-        expected_exception: type[Exc],
+        expected_type: type | None,
+        expected_value: object | None,
+        expected_exception: type[Exc] | None,
         album_id: int,
         user_id: int,
     ) -> None:
@@ -162,9 +162,9 @@ class TestAlbumService:
     async def test_update_album(
         self,
         service_factory: Callable[[], BaseService],
-        expected_type: type,
-        expected_value: object,
-        expected_exception: type[Exc],
+        expected_type: type | None,
+        expected_value: object | None,
+        expected_exception: type[Exc] | None,
         album_id: int,
         album_title: str,
         album_description: str,

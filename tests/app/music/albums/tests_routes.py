@@ -7,7 +7,7 @@ from fastapi import status, UploadFile
 from fastapi.testclient import TestClient
 
 from src.app.music.albums.api.routes import Router, get_router
-from src.presentation.music.albums.schemas import (
+from src.presentation.schemas.music.albums import (
     SCreateAlbumRequest,
     SCreateAlbumResponse,
     SAlbumResponse,
@@ -19,6 +19,8 @@ from src.presentation.music.albums.schemas import (
 from tests.app.music.albums.fixtures import AlbumTestModel, album  # noqa: F401
 
 
+@pytest.mark.album
+@pytest.mark.album_dao
 class TestRouter:
     @pytest.fixture(scope="function")
     def router_factory(self) -> Callable[[], Router]:

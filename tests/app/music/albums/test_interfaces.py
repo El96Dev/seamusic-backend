@@ -69,11 +69,11 @@ class TestPostgresDAOImplementation:
         return album["description"]
 
     @pytest.fixture(scope="function")
-    def start(self, album: AlbumTestModel) -> int:
+    def start(self) -> int:
         return 1
 
     @pytest.fixture(scope="function")
-    def size(self, album: AlbumTestModel) -> int:
+    def size(self) -> int:
         return 1
 
     @pytest.fixture(scope="function")
@@ -114,14 +114,28 @@ class TestPostgresDAOImplementation:
         assert response >= 1
         album["id"] = response
 
+    @pytest.mark.parametrize(
+        "album_id,expected_type,expected_value,expected_exception",
+        [
+            (1, Album, None, None),
+            (100, )
+        ]
+    )
     async def test_get_album_by_id(
         self,
-        album: AlbumTestModel,
+        album_id: int,
         dao_impl_factory: Callable[[], PostgresDAOImplementation],
+        expected_type: type | None,
+        expected_value: object | None,
+        expected_exception: Exception | None,
     ) -> None:
         async with dao_impl_factory() as dao_impl:
-            response = await dao_impl.get_album_by_id(album_id=album["id"])
-        assert isinstance(response, Album | None)
+            response = await dao_impl.get_album_by_id(album_id=album_id)
+        assert isinstance(response, Album)
+
+        async with dao_impl_factory() as dao_impl:
+            response = await dao_impl.get_album_by_id(album_id=100)
+        assert response is None
 
     async def test_get_album_existance_by_title(
         self,
@@ -159,6 +173,7 @@ class TestPostgresDAOImplementation:
         self,
         album: AlbumTestModel,
         dao_impl_factory: Callable[[], PostgresDAOImplementation],
+        album_id: int,
         album_title: str | None,
         album_picture_url: str | None,
         album_description: str | None,
@@ -173,7 +188,7 @@ class TestPostgresDAOImplementation:
     ) -> None:
         async with dao_impl_factory() as dao_impl:
             response = await dao_impl.update_album(
-                album_id=album["id"],
+                album_id=album_id,
                 title=album_title,
                 picture_url=album_picture_url,
                 description=album_description,
@@ -196,6 +211,8 @@ class TestPostgresDAOImplementation:
         assert response is None
 
 
+@pytest.mark.album
+@pytest.mark.album_dao
 class TestS3MAOImplementation:
     @pytest.fixture(scope="function")
     def mao_impl_factory(self) -> Callable[[], S3MAOImplementation]:

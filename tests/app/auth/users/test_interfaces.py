@@ -265,7 +265,7 @@ class TestS3MAOImplementation:
     def user_id(self, user: UserTestModel) -> int:
         return user["id"]
 
-    async def test_update_cover(self, data: bytes, user_id: int, mao_impl_factory: Callable[[], S3MAOImplementation]) -> None:
+    async def test_update_profile_picture(self, data: bytes, user_id: int, mao_impl_factory: Callable[[], S3MAOImplementation]) -> None:
         async with mao_impl_factory() as mao_impl:
             response = await mao_impl.update_profile_picture(user_id=user_id, data=data)
         assert isinstance(response, str)

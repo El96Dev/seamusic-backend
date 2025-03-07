@@ -19,7 +19,7 @@ class AlbumTestModel(TypedDict):
     tags: list[str]
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="session")
 def album() -> AlbumTestModel:
     return AlbumTestModel(
         id=1,
