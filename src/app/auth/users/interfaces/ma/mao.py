@@ -22,10 +22,10 @@ class S3MAOImplementation(MAO, S3SessionMixin):
         return self
 
     async def __aexit__(
-            self,
-            exc_type: type[Exception] | None = None,
-            exc_val: Exception | None = None,
-            exc_tb: TracebackType | None = None,
+        self,
+        exc_type: type[Exception] | None = None,
+        exc_val: Exception | None = None,
+        exc_tb: TracebackType | None = None,
     ) -> None:
         pass
 
