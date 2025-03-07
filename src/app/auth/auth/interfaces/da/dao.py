@@ -13,7 +13,7 @@ from src.app.music.squads.models import Squad
 from src.app.social.licenses.models import License
 from src.app.social.playlists.models import Playlist
 from src.app.social.tags.models import Tag
-from src.domain.auth.users.interfaces.da.dao import DAO
+from src.domain.auth.auth.interfaces.da.dao import DAO
 from src.domain.auth.users.interfaces.da.models import AccessLevel, PremiumLevel
 from src.infrastructure.loggers import app as logger
 from src.infrastructure.postgres import PostgresSessionMixin

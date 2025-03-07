@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.domain.auth.users.interfaces.base import BaseInterface
+from src.domain.auth.auth.interfaces.base import BaseInterface
 
 
 @dataclass
