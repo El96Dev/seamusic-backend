@@ -17,36 +17,6 @@ class HTMLPage(str):
     """HTML email template type"""
 
 
-@dataclass
-class SMTPSessionMixin:
-    """
-    SMTPSessionMixin is a mixin class for email interface implementation
-    that should be used via an asynchronous
-    """
-
-    @staticmethod
-    async def send_email(message: HTMLPage, recipient: str, subject: str) -> None:
-        sender = settings.email_address
-        password = settings.email_password
-
-        smtp_host = settings.smtp_host
-        smtp_port = settings.smtp_port
-
-        server = aiosmtplib.SMTP(hostname=smtp_host, port=smtp_port)
-        await server.starttls()
-        await server.login(sender, password)
-
-        msg = MIMEMultipart()
-        msg["From"] = sender
-        msg["To"] = recipient
-        msg["Subject"] = subject
-
-        body = message
-        msg.attach(MIMEText(body, "plain", "utf-8"))
-
-        await server.sendmail(sender, recipient, msg.as_string())
-
-
 class Templater:
     params: dict[str, Any]
 
@@ -76,11 +46,15 @@ class Templater:
         """
 
         self.params: dict[str, Any] = params
-
         page: list[str] = html_page.split("{{")
         return HTMLPage(str().join(list(map(self.replace, page))))
 
     async def __aenter__(self) -> Self:
+        """
+        :return Self: instance returns itself when entering an
+          asynchronous context manager
+        """
+
         return self
 
     async def __aexit__(
@@ -90,6 +64,9 @@ class Templater:
         exc_tb: TracebackType | None,
     ) -> None:
         """
+        Closes the asynchronous context manager, handles occured exceptions
+        and transforms them into developer-friendly ones
+
         :param exc_type: exception class
         :param exc_val: exception instance
         :param exc_tb: full traceback
@@ -97,3 +74,38 @@ class Templater:
         """
         if exc_type == IndexError:
             raise TemplateSyntaxError("Brackets are used incorrectly")
+
+
+@dataclass
+class SMTPSessionMixin:
+    """
+    SMTPSessionMixin is a mixin class for email interface implementation
+    that should be used via an asynchronous context manager
+    """
+
+    @staticmethod
+    async def send_email(message: HTMLPage, recipient: str, subject: str) -> None:
+        """
+
+        :param message:
+        :param recipient:
+        :param subject:
+        :return:
+        """
+
+        sender = settings.email_address
+        password = settings.email_password
+
+        smtp_host = settings.smtp_host
+        smtp_port = settings.smtp_port
+
+        server = aiosmtplib.SMTP(hostname=smtp_host, port=smtp_port)
+        await server.starttls()
+        await server.login(sender, password)
+
+        msg = MIMEMultipart()
+        msg["From"], msg["To"], msg["Subject"] = sender, recipient, subject
+
+        msg.attach(MIMEText(message, "plain", "utf-8"))
+
+        await server.sendmail(sender, recipient, msg.as_string())

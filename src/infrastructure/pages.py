@@ -1,4 +1,12 @@
 def get_page(start: int, size: int) -> int:
+    """
+    Counts the page of
+
+    :param start:
+    :param size:
+    :return:
+    """
+
     return start // size if start % size == 0 else start // size + 1
 
 

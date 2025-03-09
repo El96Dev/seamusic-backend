@@ -1,5 +1,4 @@
 import os
-from dataclasses import dataclass
 from io import BytesIO
 from types import TracebackType
 from typing import Self
@@ -10,8 +9,13 @@ from boto3 import Session as Boto3Session, client as boto3client
 from src.infrastructure.config import settings
 
 
-@dataclass
 class S3SessionMixin(Boto3Session):
+    """
+    S3SessionMixin is a mixin class for media interface implementation
+    that is designed to use Yandex Cloud S3 storage there and should
+    only be used via its subclass' asynchronous context manager
+    """
+
     def __init__(self) -> None:
         super().__init__(
             aws_access_key_id=settings.aws_access_key_id,
@@ -44,9 +48,9 @@ class S3SessionMixin(Boto3Session):
 
     async def __aexit__(
         self,
-        exc_type: type[Exception] | None = None,
-        exc_val: Exception | None = None,
-        exc_tb: TracebackType | None = None,
+        exc_type: type[Exception] | None,
+        exc_val: Exception | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         pass
 

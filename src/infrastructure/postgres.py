@@ -15,6 +15,13 @@ Base = declarative_base()
 
 @dataclass
 class PostgresSessionMixin(AsyncSession):
+    """
+    PostgresSessionMixin is a mixin class for database interface
+    implementation that is designed to use postgres there and
+    should only be used via its subclass' asynchronous context
+    manager
+    """
+
     def __init__(self, table: type[Base]) -> None:  # type: ignore[valid-type]
         super(PostgresSessionMixin, self).__init__(bind=engine)
         self.table = table
