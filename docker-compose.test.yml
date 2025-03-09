@@ -1,4 +1,4 @@
-wservices:
+services:
   db_test:
     container_name: db_test
     image: postgres:16.2
