@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:16.2
@@ -26,6 +24,13 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: app
+    develop:
+      watch:
+        - path: src
+          target: /src
+          action: sync
+        - path: pyproject.toml
+          action: rebuild
     depends_on:
       db:
         condition: service_healthy
