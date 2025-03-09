@@ -39,10 +39,10 @@ class PostgresSessionMixin(AsyncSession):
         obj = await self.get(self.table, obj_id)
         await self.delete(obj)
 
-    async def run(self, statement: Executable, method: Literal['scalars', 'scalar', 'execute']):  # type: ignore[no-untyped-def]
-        if method == 'scalars':
+    async def run(self, statement: Executable, method: Literal["scalars", "scalar", "execute"]):  # type: ignore[no-untyped-def]
+        if method == "scalars":
             return list(await self.scalars(statement))
-        elif method == 'scalar':
+        elif method == "scalar":
             return await self.scalar(statement)
-        elif method == 'execute':
+        elif method == "execute":
             await self.execute(statement)
