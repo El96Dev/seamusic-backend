@@ -8,7 +8,7 @@ class TestTemplater:
     def html_template(self) -> HTMLPage:
         return HTMLPage("<html><p>{{param1}}</p><p>{{param2}}</p></html>")
 
-    async def test_templater(self, html_template: HTMLPage):
+    async def test_templater(self, html_template: HTMLPage) -> None:
         async with Templater() as templater:
             response = await templater.parse(html_page=html_template, param1="value1", param2="value2")
 

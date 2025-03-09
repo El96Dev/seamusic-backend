@@ -36,7 +36,7 @@ class Templater:
         right: str = part[1]
         return f"{self.params.get(param, '')}{right}"
 
-    async def parse(self, html_page: HTMLPage, **params) -> HTMLPage:
+    async def parse(self, html_page: HTMLPage, **params) -> HTMLPage:  # type: ignore[no-untyped-def]
         """
         Main method that fills parameters' values into template page
 
