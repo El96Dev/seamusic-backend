@@ -20,7 +20,7 @@ from src.infrastructure.postgres import PostgresSessionMixin
 
 
 @dataclass
-class PostgresDAOImplementation(DAO, PostgresSessionMixin):
+class PostgresDAOImplementation(PostgresSessionMixin, DAO):
     def __init__(self) -> None:
         super(PostgresDAOImplementation, self).__init__(table=User)
         self.table = User

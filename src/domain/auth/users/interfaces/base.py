@@ -2,4 +2,5 @@ from abc import ABC
 
 
 class BaseInterface(ABC):
-    pass
+    def __init__(self) -> None:
+        raise TypeError("TypeError: Can't instantiate abstract class BaseInterface")
