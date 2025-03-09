@@ -36,7 +36,7 @@ class Templater:
         right: str = part[1]
         return f"{self.params.get(param, '')}{right}"
 
-    async def parse(self, html_page: HTMLPage, **params: dict[str, Any]) -> HTMLPage:
+    async def parse(self, html_page: HTMLPage, **params) -> HTMLPage:
         """
         Main method that fills parameters' values into template page
 
@@ -47,7 +47,7 @@ class Templater:
 
         self.params: dict[str, Any] = params
         page: list[str] = html_page.split("{{")
-        return HTMLPage(str().join(list(map(self.replace, page))))
+        return HTMLPage(str(page[0]) + str().join(list(map(self.replace, page[1:]))))
 
     async def __aenter__(self) -> Self:
         """
