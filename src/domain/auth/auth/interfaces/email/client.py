@@ -6,7 +6,7 @@ from src.domain.auth.auth.interfaces.base import BaseInterface
 
 
 @dataclass
-class BaseEmailClient(BaseInterface):
+class EmailClient(BaseInterface):
     """
     BaseEmailClient is an abstract class created to define
     and describe necessary functions for email client.
@@ -27,12 +27,12 @@ class BaseEmailClient(BaseInterface):
 
     async def send_email(
         self,
-        receiver: str,
+        recipient: str,
         template: str,
         **params: dict,
     ) -> None:
         """
-        :param receiver: email adress of an email receiver
+        :param recipient: email adress of an email receiver
         :param template: HTML-template (taken from presentation layer) name
         :param params: parameters to insert into template
         :raise SMTPConnectionError: when there is a problem with connection
