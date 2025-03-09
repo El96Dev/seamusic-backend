@@ -1,5 +1,3 @@
-from typing import Callable
-
 import pytest
 
 from src.app.music.albums.core.dtos import (
@@ -8,9 +6,8 @@ from src.app.music.albums.core.dtos import (
     PopularAlbumsResponseDTO,
     UpdateAlbumResponseDTO,
 )
-from src.app.music.albums.core.service import get_service
+from src.app.music.albums.core.service import get_service, Service
 from src.domain.music.albums.core.exceptions import AlbumNotFoundError
-from src.domain.music.albums.core.service import BaseService
 from src.infrastructure.exceptions import Exc
 from tests.app.music.albums.fixtures import AlbumTestModel
 
@@ -19,7 +16,7 @@ from tests.app.music.albums.fixtures import AlbumTestModel
 @pytest.mark.album_service
 class TestAlbumService:
     @pytest.fixture(scope="function")
-    def service_factory(self) -> BaseService:
+    def service(self) -> Service:
         return get_service()
 
     @pytest.fixture(scope="function")
@@ -64,14 +61,14 @@ class TestAlbumService:
 
     async def test_create_album(  # TODO: add exceptions' parametrization
         self,
-        service_factory: Callable[[], BaseService],
+        service: Service,
         user_id: int,
         album_title: str,
         album_description: str,
         album_tags: list[str],
         album: AlbumTestModel,
     ) -> None:
-        response = await service_factory().create_album(
+        response = await service.create_album(
             title=album_title,
             user_id=user_id,
             description=album_description,
@@ -89,7 +86,7 @@ class TestAlbumService:
     )
     async def test_get_album(
         self,
-        service_factory: Callable[[], BaseService],
+        service: Service,
         expected_type: type | None,
         expected_value: object | None,
         expected_exception: type[Exc] | None,
@@ -97,23 +94,23 @@ class TestAlbumService:
         user_id: int,
     ) -> None:
         if expected_type:
-            response = await service_factory().get_album(album_id=album_id, user_id=user_id)
+            response = await service.get_album(album_id=album_id, user_id=user_id)
             assert isinstance(response, expected_type)
         if expected_value:
-            response = await service_factory().get_album(album_id=album_id, user_id=user_id)
+            response = await service.get_album(album_id=album_id, user_id=user_id)
             assert response == expected_value
         if expected_exception:
             with pytest.raises(expected_exception):
-                await service_factory().get_album(album_id=album_id, user_id=user_id)
+                await service.get_album(album_id=album_id, user_id=user_id)
 
     async def test_get_popular_albums(
         self,
-        service_factory: Callable[[], BaseService],
+        service: Service,
         user_id: int,
         start: int,
         size: int,
     ) -> None:
-        response = await service_factory().get_popular_albums(
+        response = await service.get_popular_albums(
             user_id=user_id,
             start=start,
             size=size,
@@ -126,15 +123,15 @@ class TestAlbumService:
     )
     async def test_like_album(  # TODO: add user_id parametrizaition after authentication is done
         self,
-        service_factory: Callable[[], BaseService],
+        service: Service,
         album_id: int,
         user_id: int,
     ) -> None:
         if album_id == 1:
-            assert await service_factory().like_album(album_id=album_id, user_id=user_id) is None  # type: ignore[func-returns-value]
+            assert await service.like_album(album_id=album_id, user_id=user_id) is None  # type: ignore[func-returns-value]
         else:
             with pytest.raises(AlbumNotFoundError):
-                await service_factory().like_album(album_id=album_id, user_id=user_id)
+                await service.like_album(album_id=album_id, user_id=user_id)
 
     @pytest.mark.parametrize(
         "album_id",
@@ -142,15 +139,15 @@ class TestAlbumService:
     )
     async def test_unlike_album(  # TODO: add user_id parametrizaition after authentication is done
         self,
-        service_factory: Callable[[], BaseService],
+        service: Service,
         album_id: int,
         user_id: int,
     ) -> None:
         if album_id == 1:
-            assert await service_factory().unlike_album(album_id=album_id, user_id=user_id) is None  # type: ignore[func-returns-value]
+            assert await service.unlike_album(album_id=album_id, user_id=user_id) is None  # type: ignore[func-returns-value]
         else:
             with pytest.raises(AlbumNotFoundError):
-                await service_factory().unlike_album(album_id=album_id, user_id=user_id)
+                await service.unlike_album(album_id=album_id, user_id=user_id)
 
     @pytest.mark.parametrize(  # TODO: add user_id parametrizaition after authentication is done
         "album_id,expected_type,expected_value,expected_exception",
@@ -161,7 +158,7 @@ class TestAlbumService:
     )
     async def test_update_album(
         self,
-        service_factory: Callable[[], BaseService],
+        service: Service,
         expected_type: type | None,
         expected_value: object | None,
         expected_exception: type[Exc] | None,
@@ -175,7 +172,7 @@ class TestAlbumService:
         album: AlbumTestModel,
     ) -> None:
         if expected_type:
-            response = await service_factory().update_album(
+            response = await service.update_album(
                 album_id=album_id,
                 user_id=user_id,
                 title=album_title,
@@ -187,7 +184,7 @@ class TestAlbumService:
             assert isinstance(response, UpdateAlbumResponseDTO)
             album["id"] = response.id
         if expected_value:
-            response = await service_factory().update_album(
+            response = await service.update_album(
                 album_id=album_id,
                 user_id=user_id,
                 title=album_title,
@@ -199,7 +196,7 @@ class TestAlbumService:
             assert response == expected_value
         if expected_exception:
             with pytest.raises(expected_exception):
-                await service_factory().update_album(
+                await service.update_album(
                     album_id=album_id,
                     user_id=user_id,
                     title=album_title,
@@ -215,20 +212,20 @@ class TestAlbumService:
     )
     async def test_update_cover(
         self,
-        service_factory: Callable[[], BaseService],
+        service: Service,
         album_id: int,
         album_cover_data: bytes,
         user_id: int
     ) -> None:
         if album_id == 1:
-            assert await service_factory().update_cover(  # type: ignore[func-returns-value]
+            assert await service.update_cover(  # type: ignore[func-returns-value]
                 user_id=user_id,
                 album_id=album_id,
                 data=album_cover_data,
             ) is None
         else:
             with pytest.raises(AlbumNotFoundError):
-                await service_factory().update_cover(
+                await service.update_cover(
                     user_id=user_id,
                     album_id=album_id,
                     data=album_cover_data,
@@ -236,10 +233,10 @@ class TestAlbumService:
 
     async def test_delete_album(
         self,
-        service_factory: BaseService,
+        service: Service,
         album_id: int,
         user_id: int,
     ) -> None:
-        assert await service_factory.delete_album(album_id=album_id, user_id=user_id) is None  # type: ignore[func-returns-value]
+        assert await service.delete_album(album_id=album_id, user_id=user_id) is None  # type: ignore[func-returns-value]
         with pytest.raises(AlbumNotFoundError):
-            await service_factory.get_album(album_id=album_id, user_id=user_id)
+            await service.get_album(album_id=album_id, user_id=user_id)

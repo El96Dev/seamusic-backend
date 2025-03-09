@@ -114,20 +114,10 @@ class TestPostgresDAOImplementation:
         assert response >= 1
         album["id"] = response
 
-    @pytest.mark.parametrize(
-        "album_id,expected_type,expected_value,expected_exception",
-        [
-            (1, Album, None, None),
-            (100, )
-        ]
-    )
     async def test_get_album_by_id(
         self,
         album_id: int,
         dao_impl_factory: Callable[[], PostgresDAOImplementation],
-        expected_type: type | None,
-        expected_value: object | None,
-        expected_exception: Exception | None,
     ) -> None:
         async with dao_impl_factory() as dao_impl:
             response = await dao_impl.get_album_by_id(album_id=album_id)
