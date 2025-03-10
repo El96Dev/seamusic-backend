@@ -1,2 +1,2 @@
-class SMTPConnectionError(Exception):
+class EmailConnectionError(Exception):
     """Connection problems"""

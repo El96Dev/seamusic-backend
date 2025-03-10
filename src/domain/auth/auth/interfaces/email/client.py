@@ -28,12 +28,13 @@ class EmailClient(BaseInterface):
     async def send_email(
         self,
         recipient: str,
-        template: str,
+        template_path: str,
         **params: dict,
     ) -> None:
         """
         :param recipient: email adress of an email receiver
-        :param template: HTML-template (taken from presentation layer) name
+        :param template_path: HTML-template (taken from presentation layer)
+          full path & name & extension
         :param params: parameters to insert into template
         :raise SMTPConnectionError: when there is a problem with connection
           beetwen the app and
