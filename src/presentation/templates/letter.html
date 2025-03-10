@@ -1,87 +1,85 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Код подтверждения | SeaMusic</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Код подтверждения | SeaMusic</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<!--    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">-->
 
-    <style>
-        @font-face {
-            font-family: 'Benzin-Bold';
-            src: url('../static/fonts/Benzin-Bold.woff2') format('woff2'),
-                 url('../static/fonts/Benzin-Bold.woff') format('woff');
-            font-weight: bold;
-            font-style: normal;
-        }
+  <style>
+    @font-face {
+        font-family: 'Benzin-Bold';
+        src: url('../static/fonts/Benzin-Bold.woff2') format('woff2'),
+             url('../static/fonts/Benzin-Bold.woff') format('woff');
+        font-weight: bold;
+        font-style: normal;
+    }
 
-        @font-face {
-            font-family: 'Benzin-Semibold';
-            src: url('../static/fonts/Benzin-Semibold.woff2') format('woff2'),
-                 url('../static/fonts/Benzin-Semibold.woff') format('woff');
-            font-weight: 600;
-            font-style: normal;
-        }
+    @font-face {
+        font-family: 'Benzin-Semibold';
+        src: url('../static/fonts/Benzin-Semibold.woff2') format('woff2'),
+             url('../static/fonts/Benzin-Semibold.woff') format('woff');
+        font-weight: 600;
+        font-style: normal;
+    }
 
-        @font-face {
-            font-family: 'Benzin-Regular';
-            src: url('../static/fonts/Benzin-Regular.woff2') format('woff2'),
-                 url('../static/fonts/Benzin-Regular.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-        }
+    @font-face {
+        font-family: 'Benzin-Regular';
+        src: url('../static/fonts/Benzin-Regular.woff2') format('woff2'),
+             url('../static/fonts/Benzin-Regular.woff') format('woff');
+        font-weight: normal;
+        font-style: normal;
+    }
 
-        body {
-            background-color: black;
-            color: white;
-            font-family: 'Benzin-Regular', sans-serif;
-        }
-    </style>
+    body {
+        background-color: black;
+        color: white;
+        font-family: 'Benzin-Regular', sans-serif;
+    }
+  </style>
 </head>
 <body class="flex items-center justify-center min-h-screen px-4">
 
-    <div class="bg-[#181818] text-white rounded-3xl p-8 w-full max-w-2xl shadow-lg">
-        <header class="flex justify-between items-center">
-            <h1 class="flex items-center text-xl font-bold" style="font-family: 'Benzin-Bold';">
-                <img class="w-10 h-10" src="../static/images/seamusic-logo.png" alt=""> <span class="ml-2 text-3xl mt-3">Music</span>
-            </h1>
-            <button class="px-6 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-[#34577F] to-[#0A946D]">
-                Авторизация
-            </button>
-        </header>
+  <div class="bg-[#181818] text-white rounded-3xl p-8 w-full max-w-2xl shadow-lg">
+    <header class="flex justify-between items-center">
+      <h1 class="flex items-center text-xl font-bold" style="font-family: 'Benzin-Bold';">
+        <img class="w-10 h-10" src="../static/images/seamusic-logo.png" alt="">
+        <span class="ml-2 text-3xl mt-3">Music</span>
+      </h1>
+      <button class="px-6 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-[#34577F] to-[#0A946D]">
+        Авторизация
+      </button>
+    </header>
 
-        <div class="mt-6">
-            <h2 class="text-lg font-semibold" style="font-family: 'Benzin-Semibold';">
-                Код для подтверждения входа
-            </h2>
-            <p class="text-sm text-gray-300 mt-2">
-                Вы ранее зарегистрировались на нашей площадке и крч перейдите по этой ссылке что бы что то там бб - 
-                <a href="https://seamusic.com/auth/confirm/"
-                    class="bg-gradient-to-r from-[#34577F] to-[#0A946D] bg-clip-text text-transparent underline font-semibold">
-                    https://seamusic.com/auth/confirm/snlkfdjklfs;dfsmI423m4kl2m3
-                </a>
-            </p>
-        </div>
+      <div class="mt-6">
+        <h2 class="text-lg font-semibold" style="font-family: 'Benzin-Semibold';">
+          Код для подтверждения входа
+        </h2>
+        <p class="text-sm text-gray-300 mt-2">
+          Вы ранее зарегистрировались на нашей площадке и крч перейдите по этой ссылке что бы что то там бб -
+          <a href="{{confirm_url}}" class="bg-gradient-to-r from-[#34577F] to-[#0A946D] bg-clip-text text-transparent underline font-semibold">
+            {{confirm_url}}
+          </a>
+        </p>
+      </div>
 
-        <div class="border-t border-gray-600 my-6 relative">
-            <span class="absolute left-1/2 -translate-x-1/2 -top-3 bg-[#181818] px-2 text-xs text-gray-400">ИЛИ</span>
-        </div>
+      <div class="border-t border-gray-600 my-6 relative">
+        <span class="absolute left-1/2 -translate-x-1/2 -top-3 bg-[#181818] px-2 text-xs text-gray-400">ИЛИ</span>
+      </div>
 
-        <button class="w-full py-3 text-sm font-semibold rounded-full bg-transparent border border-gray-400 transition duration-300 hover:bg-gradient-to-r hover:from-[#34577F] hover:to-[#0A946D]">
-            Перейти по ссылке
-        </button>
+      <button class="w-full py-3 text-sm font-semibold rounded-full bg-transparent border border-gray-400 transition duration-300 hover:bg-gradient-to-r hover:from-[#34577F] hover:to-[#0A946D]">
+        Перейти по ссылке
+      </button>
 
-        <footer class="mt-6 text-center text-white text-md">
-            <nav class="flex justify-center space-x-4 text-xs">
-                <a href="#" class="hover:underline">Главная</a>
-                <a href="#" class="hover:underline">О проекте</a>
-                <a href="#" class="hover:underline">Политика конфиденциальности</a>
-            </nav>
-            <p class="mt-4 text-xs">Copyright SeaMusic 2025 ©  - <span class="w-36 ml-2 text-left">For listeners, artists & producers</span></p>
-        </footer>
+      <footer class="mt-6 text-center text-white text-md">
+        <p class="mt-4 text-xs">
+          Copyright SeaMusic 2025 ©
+          <br><span class="w-36 ml-2 text-left">For listeners, artists & producers</span>
+        </p>
+      </footer>
     </div>
 
 </body>
