@@ -29,13 +29,13 @@ class EmailClient(BaseInterface):
         self,
         recipient: str,
         template_path: str,
-        **params: dict,
+        confirm_url: str,
     ) -> None:
         """
         :param recipient: email adress of an email receiver
         :param template_path: HTML-template (taken from presentation layer)
           full path & name & extension
-        :param params: parameters to insert into template
+        :param confirm_url: URL for confirmation of an action
         :raise SMTPConnectionError: when there is a problem with connection
           beetwen the app and
         :raise NotImplementedError: when called directly by abstract class instance
