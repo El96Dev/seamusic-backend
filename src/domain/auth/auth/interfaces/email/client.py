@@ -47,8 +47,8 @@ class EmailClient(BaseInterface):
 
     async def __aexit__(
         self,
-        exc_type: type[Exception],
-        exc_val: Exception,
-        exc_tb: TracebackType,
+        exc_type: type[Exception] | None,
+        exc_val: Exception | None,
+        exc_tb: TracebackType | None,
     ) -> None:
         pass
