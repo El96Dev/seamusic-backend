@@ -84,7 +84,7 @@ class SMTPSessionMixin:
     """
 
     @staticmethod
-    async def send_email(message: HTMLPage, recipient: str, subject: str) -> None:
+    async def send_smtp_email(message: HTMLPage, recipient: str, subject: str) -> None:
         """
 
         :param message:

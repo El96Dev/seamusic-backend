@@ -28,11 +28,13 @@ class EmailClient(BaseInterface):
     async def send_email(
         self,
         recipient: str,
+        subject: str,
         template_path: str,
         confirm_url: str,
     ) -> None:
         """
         :param recipient: email adress of an email receiver
+        :param subject: email message subject
         :param template_path: HTML-template (taken from presentation layer)
           full path & name & extension
         :param confirm_url: URL for confirmation of an action
