@@ -40,8 +40,8 @@ class EmailClientImplementation(EmailClient, SMTPSessionMixin, Templater):
 
         params = {"confirm_url": confirm_url}
         with open(template_path, 'r', encoding='utf-8') as file:
-          html_template = file.read()
+          html_template = HTMLPage(file.read())
 
-        message = self.parse(html_template, params)
+        message = HTMLPage(self.parse(html_template, params))
 
         await self.send_smtp_email(message, recipient, subject)
