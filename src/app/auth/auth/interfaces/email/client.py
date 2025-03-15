@@ -2,7 +2,7 @@ from src.domain.auth.auth.interfaces.email.client import EmailClient
 from src.infrastructure.email import HTMLPage, SMTPSessionMixin, Templater
 
 
-class EmailClientImplementation(EmailClient, SMTPSessionMixin):
+class EmailClientImplementation(EmailClient, SMTPSessionMixin, Templater):
     """
     BaseEmailClient is an abstract class created to define
     and describe necessary functions for email client.
@@ -42,7 +42,6 @@ class EmailClientImplementation(EmailClient, SMTPSessionMixin):
         with open(template_path, 'r', encoding='utf-8') as file:
           html_template = file.read()
 
-        templater = Templater() # TODO Ask about correct placement of Templater class (class-field, inheritance or function parameter)
-        message = templater.parse(html_template, params)
+        message = self.parse(html_template, params)
 
         await self.send_smtp_email(message, recipient, subject)
