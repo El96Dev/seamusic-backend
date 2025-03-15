@@ -42,6 +42,6 @@ class EmailClientImplementation(EmailClient, SMTPSessionMixin, Templater):
         with open(template_path, 'r', encoding='utf-8') as file:
           html_template = HTMLPage(file.read())
 
-        message = HTMLPage(self.parse(html_template, params))
+        message = HTMLPage(self.parse(html_template, **params))
 
         await self.send_smtp_email(message, recipient, subject)
